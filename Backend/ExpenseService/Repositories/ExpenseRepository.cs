@@ -1,3 +1,7 @@
+using ExpenseService.Data;
+using ExpenseService.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace ExpenseService.Repositories
 {
     public class ExpenseRepository
@@ -14,7 +18,7 @@ namespace ExpenseService.Repositories
             return await _context.Expenses.Where(e => e.UserId == userId).ToListAsync();
         }
 
-        public async Task<Expense> GetByIdAsync(int id, int userId)
+        public async Task<Expense?> GetByIdAsync(int id, int userId)
         {
             return await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
         }
