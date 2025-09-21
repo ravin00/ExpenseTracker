@@ -46,6 +46,26 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
+    - name: Validate Docker Compose file
+      run: |
+        # Check if docker-compose.yml exists and is valid YAML
+        if [ -f "docker-compose.yml" ]; then
+          echo " docker-compose.yml found"
+          # Try modern docker compose first, fallback to docker-compose
+          if docker compose version > /dev/null 2>&1; then
+            echo "Using modern docker compose"
+            docker compose config --quiet && echo "Docker Compose configuration is valid"
+          elif command -v docker-compose > /dev/null 2>&1; then
+            echo "Using legacy docker-compose"
+            docker-compose config --quiet && echo "Docker Compose configuration is valid"
+          else
+            echo "Docker Compose not available, skipping validation"
+          fi
+        else
+          echo "docker-compose.yml not found"
+          exit 1
+        fi
+    
     - name: Build AuthService Docker Image
       run: |
         cd Backend/AuthService
@@ -55,11 +75,6 @@ jobs:
       run: |
         cd Backend/ExpenseService
         docker build -t expensetracker-expense:latest .
-    
-    - name: Test Docker Compose Configuration
-      run: |
-        # Validate docker-compose.yml syntax
-        docker-compose config
 
   # Security Scan (Optional)
   security-scan:
