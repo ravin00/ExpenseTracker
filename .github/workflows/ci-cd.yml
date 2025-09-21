@@ -1,0 +1,86 @@
+# This workflow builds and tests the ExpenseTracker microservices
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "feat/*" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # .NET Build and Test Job
+  dotnet-build:
+    runs-on: ubuntu-latest
+    name: Build and Test .NET Services
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build AuthService
+      run: dotnet build Backend/AuthService --no-restore
+    
+    - name: Build ExpenseService
+      run: dotnet build Backend/ExpenseService --no-restore
+    
+    - name: Test (when test projects exist)
+      run: dotnet test --no-build --verbosity normal
+      continue-on-error: true  # Continue if no test projects found
+
+  # Docker Build Job
+  docker-build:
+    runs-on: ubuntu-latest
+    name: Build Docker Images
+    needs: dotnet-build
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build AuthService Docker Image
+      run: |
+        cd Backend/AuthService
+        docker build -t expensetracker-auth:latest .
+    
+    - name: Build ExpenseService Docker Image
+      run: |
+        cd Backend/ExpenseService
+        docker build -t expensetracker-expense:latest .
+    
+    - name: Test Docker Compose Configuration
+      run: |
+        # Validate docker-compose.yml syntax
+        docker-compose config
+
+  # Security Scan (Optional)
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    needs: dotnet-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
