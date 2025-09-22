@@ -41,7 +41,7 @@ jobs:
         cat ExpenseTracker.sln || echo "❌ Solution file not found"
     
     - name: Cache NuGet packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
@@ -52,7 +52,7 @@ jobs:
       run: dotnet restore ExpenseTracker.sln --verbosity detailed
     
     - name: Upload restore artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nuget-packages
         path: ~/.nuget/packages
@@ -72,7 +72,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Download restore artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: nuget-packages
         path: ~/.nuget/packages
@@ -84,7 +84,7 @@ jobs:
         echo "✅ AuthService build complete"
     
     - name: Upload AuthService artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: auth-service-build
         path: |
@@ -106,7 +106,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Download restore artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: nuget-packages
         path: ~/.nuget/packages
@@ -118,7 +118,7 @@ jobs:
         echo "✅ ExpenseService build complete"
     
     - name: Upload ExpenseService artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: expense-service-build
         path: |
@@ -140,13 +140,13 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Download AuthService artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: auth-service-build
         path: Backend/AuthService/
     
     - name: Download ExpenseService artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: expense-service-build
         path: Backend/ExpenseService/
@@ -195,13 +195,13 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Download AuthService artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: auth-service-build
         path: Backend/AuthService/
     
     - name: Download ExpenseService artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: expense-service-build
         path: Backend/ExpenseService/
