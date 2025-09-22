@@ -1,5 +1,6 @@
 # GitLab CI/CD Pipeline for ExpenseTracker Microservices
 # .NET 9.0 with Docker support
+# Updated: Force new pipeline run with correct solution paths
 
 stages:
   - restore
