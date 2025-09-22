@@ -28,7 +28,15 @@ restore-dependencies:
   <<: *dotnet_cache
   script:
     - dotnet --version
-    - dotnet restore ExpenseTracker.sln
+    - echo "=== Debugging Information ==="
+    - pwd
+    - ls -la
+    - echo "=== Checking Backend Directory ==="
+    - ls -la Backend/ || echo "❌ Backend directory not found"
+    - echo "=== Solution File Content ==="
+    - cat ExpenseTracker.sln
+    - echo "=== Attempting Restore ==="
+    - dotnet restore ExpenseTracker.sln --verbosity detailed
   artifacts:
     paths:
       - .nuget/packages/

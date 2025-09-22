@@ -5,9 +5,9 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "Backend\AuthService\AuthService.csproj", "{40601A8A-D13D-4E41-B97C-3E2CA8FFCFDA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "Backend/AuthService/AuthService.csproj", "{40601A8A-D13D-4E41-B97C-3E2CA8FFCFDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseService", "Backend\ExpenseService\ExpenseService.csproj", "{72CEB9B0-3256-4B01-9921-7E36816DC75A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseService", "Backend/ExpenseService/ExpenseService.csproj", "{72CEB9B0-3256-4B01-9921-7E36816DC75A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
