@@ -125,6 +125,7 @@ docker-build-auth:
   only:
     - main
     - develop
+    - fix/gitlab-pipeline
     - /^release\/.*$/
 
 docker-build-expense:
@@ -145,6 +146,7 @@ docker-build-expense:
   only:
     - main
     - develop
+    - fix/gitlab-pipeline
     - /^release\/.*$/
 
 # Validate Docker Compose
