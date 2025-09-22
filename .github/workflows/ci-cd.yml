@@ -7,6 +7,7 @@ on:
     branches: [ main, develop, fix/*, feat/* ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:  # Allow manual triggering
 
 env:
   DOTNET_VERSION: '9.0.x'
@@ -287,9 +288,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docker-build, validate-docker-compose]
     if: github.ref == 'refs/heads/main'
-    environment:
-      name: development
-      url: https://dev.expensetracker.com
     steps:
     - name: Deploy to development environment
       run: |
@@ -302,10 +300,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [docker-build, validate-docker-compose]
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://expensetracker.com
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     steps:
     - name: Deploy to production environment
       run: |
