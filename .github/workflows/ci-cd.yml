@@ -225,6 +225,10 @@ jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # Required for uploading SARIF results
+      actions: read
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || contains(github.ref, 'refs/heads/fix/') || contains(github.ref, 'refs/heads/feat/'))
     steps:
     - uses: actions/checkout@v4
@@ -238,7 +242,7 @@ jobs:
         output: 'trivy-results.sarif'
     
     - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
