@@ -12,12 +12,12 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository_owner }}
 
 jobs:
-  # Restore dependencies
-  restore:
-    name: Restore Dependencies
+  # Build AuthService
+  build-auth-service:
+    name: Build AuthService
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -27,21 +27,8 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
-    - name: Display .NET version
-      run: dotnet --version
-    
-    - name: Debug - Show directory structure
-      run: |
-        echo "=== Current Directory ==="
-        pwd
-        ls -la
-        echo "=== Backend Directory ==="
-        ls -la Backend/ || echo "❌ Backend directory not found"
-        echo "=== Solution File Content ==="
-        cat ExpenseTracker.sln || echo "❌ Solution file not found"
-    
     - name: Cache NuGet packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
@@ -49,33 +36,7 @@ jobs:
           ${{ runner.os }}-nuget-
     
     - name: Restore dependencies
-      run: dotnet restore ExpenseTracker.sln --verbosity detailed
-    
-    - name: Upload restore artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: nuget-packages
-        path: ~/.nuget/packages
-        retention-days: 1
-
-  # Build AuthService
-  build-auth-service:
-    name: Build AuthService
-    runs-on: ubuntu-latest
-    needs: restore
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Download restore artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: nuget-packages
-        path: ~/.nuget/packages
+      run: dotnet restore Backend/AuthService/AuthService.csproj --verbosity detailed
     
     - name: Build AuthService
       run: |
@@ -84,7 +45,7 @@ jobs:
         echo "✅ AuthService build complete"
     
     - name: Upload AuthService artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: auth-service-build
         path: |
@@ -96,7 +57,6 @@ jobs:
   build-expense-service:
     name: Build ExpenseService
     runs-on: ubuntu-latest
-    needs: restore
     steps:
     - uses: actions/checkout@v4
     
@@ -105,11 +65,16 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
-    - name: Download restore artifacts
-      uses: actions/download-artifact@v3
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
       with:
-        name: nuget-packages
         path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore Backend/ExpenseService/ExpenseService.csproj --verbosity detailed
     
     - name: Build ExpenseService
       run: |
@@ -118,7 +83,7 @@ jobs:
         echo "✅ ExpenseService build complete"
     
     - name: Upload ExpenseService artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: expense-service-build
         path: |
@@ -139,22 +104,21 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
-    - name: Download AuthService artifacts
-      uses: actions/download-artifact@v3
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
       with:
-        name: auth-service-build
-        path: Backend/AuthService/
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
     
-    - name: Download ExpenseService artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: expense-service-build
-        path: Backend/ExpenseService/
+    - name: Restore dependencies
+      run: dotnet restore ExpenseTracker.sln --verbosity detailed
     
     - name: Run unit tests
       run: |
         echo "Running unit tests..."
-        dotnet test --no-build --configuration Release --verbosity normal || echo "⚠️ No test projects found"
+        dotnet test --configuration Release --verbosity normal || echo "⚠️ No test projects found"
         echo "✅ Tests completed"
       continue-on-error: true
 
@@ -162,7 +126,6 @@ jobs:
   code-quality:
     name: Code Quality Check
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service]
     steps:
     - uses: actions/checkout@v4
     
@@ -170,6 +133,17 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore ExpenseTracker.sln --verbosity detailed
     
     - name: Install dotnet format
       run: dotnet tool install -g dotnet-format || true
@@ -187,24 +161,12 @@ jobs:
     name: Build Docker Images
     runs-on: ubuntu-latest
     needs: [build-auth-service, build-expense-service]
-    if: github.ref == 'refs/heads/main' || contains(github.ref, 'refs/heads/develop') || contains(github.ref, 'refs/heads/fix/') || contains(github.ref, 'refs/heads/feat/')
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     permissions:
       contents: read
       packages: write
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Download AuthService artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: auth-service-build
-        path: Backend/AuthService/
-    
-    - name: Download ExpenseService artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: expense-service-build
-        path: Backend/ExpenseService/
     
     - name: Log in to Container Registry
       uses: docker/login-action@v3
@@ -263,8 +225,11 @@ jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      security-events: write  # Required for uploading SARIF results
+      actions: read
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/'))
     steps:
     - uses: actions/checkout@v4
     
@@ -277,7 +242,7 @@ jobs:
         output: 'trivy-results.sarif'
     
     - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
@@ -287,7 +252,7 @@ jobs:
     name: Deploy to Development
     runs-on: ubuntu-latest
     needs: [docker-build, validate-docker-compose]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     steps:
     - name: Deploy to development environment
       run: |
@@ -300,7 +265,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [docker-build, validate-docker-compose]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')) && github.event_name == 'workflow_dispatch'
     steps:
     - name: Deploy to production environment
       run: |
@@ -312,7 +277,7 @@ jobs:
   cleanup:
     name: Cleanup
     runs-on: ubuntu-latest
-    needs: [test, code-quality, docker-build, validate-docker-compose]
+    needs: [test, code-quality, docker-build, validate-docker-compose, security-scan]
     if: always()
     steps:
     - name: Cleanup temporary files
