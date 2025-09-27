@@ -47,25 +47,20 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // JWT authentication
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "default-secret-key-for-development";
-var key = Encoding.ASCII.GetBytes(jwtSecret);
-builder.Services.AddAuthentication(options =>
+// var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "default-secret-key-for-development";
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+if (string.IsNullOrEmpty(jwtSecret))
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+    if (builder.Environment.IsDevelopment())
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
+        jwtSecret = "default-secret-key-for-development";
+        Console.WriteLine("WARNING: Using default JWT secret key in development environment.");
+    }
+    else
+    {
+        throw new InvalidOperationException("JWT secret key is not configured. Please set 'Jwt:Secret' in configuration for production environments.");
+    }
+}
 
 var app = builder.Build();
 
