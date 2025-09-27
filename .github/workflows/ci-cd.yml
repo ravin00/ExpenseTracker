@@ -91,11 +91,49 @@ jobs:
           Backend/ExpenseService/obj/
         retention-days: 1
 
+  # Build CategoryService
+  build-category-service:
+    name: Build CategoryService
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore Backend/CategoryService/CategoryService.csproj --verbosity detailed
+    
+    - name: Build CategoryService
+      run: |
+        echo "Building CategoryService..."
+        dotnet build Backend/CategoryService/CategoryService.csproj --no-restore --configuration Release
+        echo "✅ CategoryService build complete"
+    
+    - name: Upload CategoryService artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: category-service-build
+        path: |
+          Backend/CategoryService/bin/
+          Backend/CategoryService/obj/
+        retention-days: 1
+
   # Unit Tests
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service]
+    needs: [build-auth-service, build-expense-service, build-category-service]
     steps:
     - uses: actions/checkout@v4
     
@@ -160,7 +198,7 @@ jobs:
   docker-build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service]
+    needs: [build-auth-service, build-expense-service, build-category-service]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     permissions:
       contents: read
@@ -197,6 +235,17 @@ jobs:
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/expense-service:${{ github.sha }}
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/expense-service:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Build and push CategoryService Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: Backend/CategoryService
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/category-service:${{ github.sha }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/category-service:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
