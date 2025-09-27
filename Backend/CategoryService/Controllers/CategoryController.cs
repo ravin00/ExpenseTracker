@@ -20,9 +20,13 @@ namespace CategoryService.Controllers
         private int GetUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return userIdClaim != null ? int.Parse(userIdClaim) : throw new UnauthorizedAccessException("User ID not found in token");
+            // return userIdClaim != null ? int.Parse(userIdClaim) : throw new UnauthorizedAccessException("User ID not found in token");
+            if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+            {
+                return userId;
+            }
+            throw new UnauthorizedAccessException("User ID not found or invalid in token");
         }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
