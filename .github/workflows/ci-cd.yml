@@ -129,11 +129,49 @@ jobs:
           Backend/CategoryService/obj/
         retention-days: 1
 
+  # Build BudgetService
+  build-budget-service:
+    name: Build BudgetService
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore Backend/BudgetService/BudgetService.csproj --verbosity detailed
+    
+    - name: Build BudgetService
+      run: |
+        echo "Building BudgetService..."
+        dotnet build Backend/BudgetService/BudgetService.csproj --no-restore --configuration Release
+        echo "✅ BudgetService build complete"
+    
+    - name: Upload BudgetService artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: budget-service-build
+        path: |
+          Backend/BudgetService/bin/
+          Backend/BudgetService/obj/
+        retention-days: 1
+
   # Unit Tests
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service, build-category-service]
+    needs: [build-auth-service, build-expense-service, build-category-service, build-budget-service]
     steps:
     - uses: actions/checkout@v4
     
@@ -198,7 +236,7 @@ jobs:
   docker-build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service, build-category-service]
+    needs: [build-auth-service, build-expense-service, build-category-service, build-budget-service]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     permissions:
       contents: read
@@ -246,6 +284,17 @@ jobs:
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/category-service:${{ github.sha }}
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/category-service:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Build and push BudgetService Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: Backend/BudgetService
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/budget-service:${{ github.sha }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/budget-service:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
