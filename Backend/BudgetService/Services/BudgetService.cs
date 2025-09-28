@@ -15,7 +15,7 @@ namespace BudgetService.Services
 
         public async Task<List<Budget>> GetBudgetsAsync(int userId, bool activeOnly = false)
         {
-            return activeOnly 
+            return activeOnly
                 ? await _repository.GetActiveAsync(userId)
                 : await _repository.GetAllAsync(userId);
         }
@@ -114,7 +114,7 @@ namespace BudgetService.Services
                 throw new KeyNotFoundException($"Budget with ID {budgetId} not found");
             }
 
-            await _repository.UpdateSpentAmountAsync(budgetId, spentAmount);
+            await _repository.UpdateSpentAmountAsync(budgetId, spentAmount, userId);
         }
 
         public decimal GetBudgetProgress(Budget budget)
