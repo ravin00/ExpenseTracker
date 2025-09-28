@@ -69,9 +69,9 @@ namespace BudgetService.Repositories
                 .AnyAsync(b => b.Name == name && b.UserId == userId && (excludeId == null || b.Id != excludeId));
         }
 
-        public async Task UpdateSpentAmountAsync(int budgetId, decimal spentAmount)
+        public async Task UpdateSpentAmountAsync(int budgetId, decimal spentAmount, int userId)
         {
-            var budget = await _context.Budgets.FindAsync(budgetId);
+            var budget = await _context.Budgets.FirstOrDefaultAsync(b => b.Id == budgetId && b.UserId == userId);
             if (budget != null)
             {
                 budget.SpentAmount = spentAmount;
