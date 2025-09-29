@@ -50,10 +50,10 @@ namespace ExpenseService.Tests.RepositoryTests
         {
             // Arrange
             var userId = 1;
-            var expense = new Expense 
-            { 
-                Description = "Test Expense", 
-                Amount = 100m, 
+            var expense = new Expense
+            {
+                Description = "Test Expense",
+                Amount = 100m,
                 UserId = userId,
                 IsActive = true
             };
@@ -75,11 +75,11 @@ namespace ExpenseService.Tests.RepositoryTests
         public async Task GetByIdAsync_WithWrongUserId_ShouldReturnNull()
         {
             // Arrange
-            var expense = new Expense 
-            { 
-                Description = "Test Expense", 
-                Amount = 100m, 
-                UserId = 1 
+            var expense = new Expense
+            {
+                Description = "Test Expense",
+                Amount = 100m,
+                UserId = 1
             };
 
             _context.Expenses.Add(expense);
@@ -96,11 +96,11 @@ namespace ExpenseService.Tests.RepositoryTests
         public async Task AddAsync_ShouldAddExpenseToDatabase()
         {
             // Arrange
-            var expense = new Expense 
-            { 
-                Description = "New Expense", 
-                Amount = 150m, 
-                UserId = 1 
+            var expense = new Expense
+            {
+                Description = "New Expense",
+                Amount = 150m,
+                UserId = 1
             };
 
             // Act
@@ -117,11 +117,11 @@ namespace ExpenseService.Tests.RepositoryTests
         public async Task UpdateAsync_ShouldUpdateExpenseInDatabase()
         {
             // Arrange
-            var expense = new Expense 
-            { 
-                Description = "Original Description", 
-                Amount = 100m, 
-                UserId = 1 
+            var expense = new Expense
+            {
+                Description = "Original Description",
+                Amount = 100m,
+                UserId = 1
             };
 
             _context.Expenses.Add(expense);
@@ -144,10 +144,10 @@ namespace ExpenseService.Tests.RepositoryTests
         public async Task DeleteAsync_ShouldSoftDeleteExpenseInDatabase()
         {
             // Arrange
-            var expense = new Expense 
-            { 
-                Description = "To Delete", 
-                Amount = 100m, 
+            var expense = new Expense
+            {
+                Description = "To Delete",
+                Amount = 100m,
                 UserId = 1,
                 IsActive = true
             };

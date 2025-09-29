@@ -48,12 +48,12 @@ namespace ExpenseService.Tests.ServiceTests
             // Arrange
             var userId = 1;
             var expenseId = 1;
-            var expense = new Expense 
-            { 
-                Id = expenseId, 
-                Description = "Test Expense", 
-                Amount = 100m, 
-                UserId = userId 
+            var expense = new Expense
+            {
+                Id = expenseId,
+                Description = "Test Expense",
+                Amount = 100m,
+                UserId = userId
             };
 
             _mockRepository.Setup(r => r.GetByIdAsync(expenseId, userId))
@@ -116,9 +116,9 @@ namespace ExpenseService.Tests.ServiceTests
             result.UserId.Should().Be(userId);
             result.Amount.Should().Be(150m);
             result.Date.Should().BeCloseTo(dto.Date, TimeSpan.FromSeconds(1));
-            _mockRepository.Verify(r => r.AddAsync(It.Is<Expense>(e => 
-                e.UserId == userId && 
-                e.Description == "New Expense" && 
+            _mockRepository.Verify(r => r.AddAsync(It.Is<Expense>(e =>
+                e.UserId == userId &&
+                e.Description == "New Expense" &&
                 e.Amount == 150m)), Times.Once);
         }
 
@@ -126,12 +126,12 @@ namespace ExpenseService.Tests.ServiceTests
         public async Task UpdateExpenseAsync_ShouldCallRepositoryUpdate()
         {
             // Arrange
-            var expense = new Expense 
-            { 
-                Id = 1, 
-                Description = "Updated Expense", 
-                Amount = 200m, 
-                UserId = 1 
+            var expense = new Expense
+            {
+                Id = 1,
+                Description = "Updated Expense",
+                Amount = 200m,
+                UserId = 1
             };
 
             _mockRepository.Setup(r => r.UpdateAsync(expense))
@@ -148,12 +148,12 @@ namespace ExpenseService.Tests.ServiceTests
         public async Task DeleteExpenseAsync_ShouldCallRepositoryDelete()
         {
             // Arrange
-            var expense = new Expense 
-            { 
-                Id = 1, 
-                Description = "To Delete", 
-                Amount = 100m, 
-                UserId = 1 
+            var expense = new Expense
+            {
+                Id = 1,
+                Description = "To Delete",
+                Amount = 100m,
+                UserId = 1
             };
 
             _mockRepository.Setup(r => r.DeleteAsync(expense))
