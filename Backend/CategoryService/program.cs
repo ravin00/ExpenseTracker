@@ -1,82 +1,166 @@
 using CategoryService.Data;
+using CategoryService.Middleware;
 using CategoryService.Repositories;
 using CategoryService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/categoryservice-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-// DbContext
-builder.Services.AddDbContext<CategoryDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CategoryDb")));
-
-// Services & repositories
-builder.Services.AddScoped<CategoryRepository>();
-builder.Services.AddScoped<CategoryService.Services.CategoryService>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+try
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CategoryService API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add Serilog
+    builder.Host.UseSerilog();
+
+    // DbContext with validation
+    var connectionString = builder.Configuration.GetConnectionString("CategoryDb");
+    if (string.IsNullOrEmpty(connectionString))
     {
-        Description = "JWT Authorization header using the Bearer scheme.",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        throw new InvalidOperationException("CategoryDb connection string is not configured");
+    }
+
+    builder.Services.AddDbContext<CategoryDbContext>(options =>
+        options.UseSqlServer(connectionString));
+
+    // Services & repositories
+    builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+    builder.Services.AddScoped<ICategoryService, CategoryService.Services.CategoryService>();
+
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+
+    // Enhanced Swagger configuration
+    builder.Services.AddSwaggerGen(c =>
     {
+        c.SwaggerDoc("v1", new OpenApiInfo
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+            Title = "ExpenseTracker Category API",
+            Version = "v1",
+            Description = "Category management service for ExpenseTracker application"
+        });
 
-// JWT authentication
-// var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "default-secret-key-for-development";
-var jwtSecret = builder.Configuration["Jwt:Secret"];
-if (string.IsNullOrEmpty(jwtSecret))
-{
-    if (builder.Environment.IsDevelopment())
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+    });
+
+    // JWT authentication with validation
+    var jwtSecret = builder.Configuration["Jwt:Secret"];
+    if (string.IsNullOrEmpty(jwtSecret))
     {
         jwtSecret = "default-secret-key-for-development";
-        Console.WriteLine("WARNING: Using default JWT secret key in development environment.");
+        Log.Warning("Using default JWT secret. This should not be used in production!");
     }
-    else
+
+    var key = Encoding.ASCII.GetBytes(jwtSecret);
+    builder.Services.AddAuthentication(options =>
     {
-        throw new InvalidOperationException("JWT secret key is not configured. Please set 'Jwt:Secret' in configuration for production environments.");
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false; // Set to true in production
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+    // Add CORS
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    });
+
+    // Add health checks
+    builder.Services.AddHealthChecks()
+        .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+
+    var app = builder.Build();
+
+    // Configure middleware pipeline
+    app.UseMiddleware<GlobalExceptionMiddleware>();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Category API V1");
+            c.RoutePrefix = "swagger";
+        });
     }
+
+    app.UseCors("AllowAll");
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+    app.MapHealthChecks("/health");
+
+    // Auto-migrate database
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<CategoryDbContext>();
+        context.Database.EnsureCreated();
+        Log.Information("Category database initialized successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Failed to initialize category database");
+        Log.Warning("Service will start but database features won't work until SQL Server is available");
+    }
+
+    Log.Information("Category Service starting...");
+    app.Run();
 }
-
-var app = builder.Build();
-
-// Auto-migrate database
-using (var scope = app.Services.CreateScope())
+catch (Exception ex)
 {
-    var context = scope.ServiceProvider.GetRequiredService<CategoryDbContext>();
-    context.Database.EnsureCreated();
+    Log.Fatal(ex, "Category Service failed to start");
 }
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
