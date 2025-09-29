@@ -82,14 +82,14 @@ namespace CategoryService.Tests.ServiceTests
         {
             // Arrange
             var userId = 1;
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "New Category",
                 Description = "Test description",
                 Color = "#FF5733"
             };
-            var createdCategory = new Category 
-            { 
+            var createdCategory = new Category
+            {
                 Id = 1,
                 Name = dto.Name,
                 Description = dto.Description,
@@ -113,10 +113,10 @@ namespace CategoryService.Tests.ServiceTests
             result.UserId.Should().Be(userId);
 
             _mockRepository.Verify(r => r.ExistsAsync(dto.Name, userId, null), Times.Once);
-            _mockRepository.Verify(r => r.AddAsync(It.Is<Category>(c => 
-                c.Name == dto.Name && 
-                c.Description == dto.Description && 
-                c.Color == dto.Color && 
+            _mockRepository.Verify(r => r.AddAsync(It.Is<Category>(c =>
+                c.Name == dto.Name &&
+                c.Description == dto.Description &&
+                c.Color == dto.Color &&
                 c.UserId == userId)), Times.Once);
         }
 
@@ -145,16 +145,16 @@ namespace CategoryService.Tests.ServiceTests
             // Arrange
             var categoryId = 1;
             var userId = 1;
-            var existingCategory = new Category 
-            { 
+            var existingCategory = new Category
+            {
                 Id = categoryId,
                 Name = "Old Name",
                 Description = "Old description",
                 Color = "#000000",
                 UserId = userId
             };
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Updated Name",
                 Description = "Updated description",
                 Color = "#FF5733"
@@ -208,8 +208,8 @@ namespace CategoryService.Tests.ServiceTests
             // Arrange
             var categoryId = 1;
             var userId = 1;
-            var existingCategory = new Category 
-            { 
+            var existingCategory = new Category
+            {
                 Id = categoryId,
                 Name = "Old Name",
                 UserId = userId
@@ -237,8 +237,8 @@ namespace CategoryService.Tests.ServiceTests
             // Arrange
             var categoryId = 1;
             var userId = 1;
-            var category = new Category 
-            { 
+            var category = new Category
+            {
                 Id = categoryId,
                 Name = "To Delete",
                 UserId = userId
@@ -282,8 +282,8 @@ namespace CategoryService.Tests.ServiceTests
             // Arrange
             var userId = 1;
             var dto = new CategoryDto { Name = "New Category" };
-            var createdCategory = new Category 
-            { 
+            var createdCategory = new Category
+            {
                 Id = 1,
                 Name = dto.Name,
                 UserId = userId,
@@ -300,8 +300,8 @@ namespace CategoryService.Tests.ServiceTests
             var result = await _service.CreateCategoryAsync(userId, dto);
 
             // Assert
-            _mockRepository.Verify(r => r.AddAsync(It.Is<Category>(c => 
-                c.CreatedAt != default && 
+            _mockRepository.Verify(r => r.AddAsync(It.Is<Category>(c =>
+                c.CreatedAt != default &&
                 c.UpdatedAt != default)), Times.Once);
         }
 
@@ -311,8 +311,8 @@ namespace CategoryService.Tests.ServiceTests
             // Arrange
             var userId = 1;
             var dto = new CategoryDto { Name = "Category with nulls" };
-            var createdCategory = new Category 
-            { 
+            var createdCategory = new Category
+            {
                 Id = 1,
                 Name = dto.Name,
                 Description = null,

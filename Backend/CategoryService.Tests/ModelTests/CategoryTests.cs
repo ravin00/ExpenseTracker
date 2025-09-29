@@ -162,10 +162,10 @@ namespace CategoryService.Tests.ModelTests
         public void IsRecentlyCreated_ShouldReturnCorrectResult(int daysOffset, bool expected)
         {
             // Arrange
-            var category = new Category 
-            { 
-                Name = "Test", 
-                CreatedAt = DateTime.UtcNow.AddDays(daysOffset) 
+            var category = new Category
+            {
+                Name = "Test",
+                CreatedAt = DateTime.UtcNow.AddDays(daysOffset)
             };
 
             // Act
@@ -183,10 +183,10 @@ namespace CategoryService.Tests.ModelTests
         public void IsRecentlyUpdated_ShouldReturnCorrectResult(int hoursOffset, bool expected)
         {
             // Arrange
-            var category = new Category 
-            { 
-                Name = "Test", 
-                UpdatedAt = DateTime.UtcNow.AddHours(hoursOffset) 
+            var category = new Category
+            {
+                Name = "Test",
+                UpdatedAt = DateTime.UtcNow.AddHours(hoursOffset)
             };
 
             // Act

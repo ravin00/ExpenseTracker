@@ -70,10 +70,10 @@ namespace CategoryService.Tests.DtoTests
         {
             // Arrange
             var longDescription = new string('A', 501);
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Valid Name",
-                Description = longDescription 
+                Description = longDescription
             };
 
             // Act
@@ -95,10 +95,10 @@ namespace CategoryService.Tests.DtoTests
         public void CategoryDto_WithValidColor_ShouldPassValidation(string? color)
         {
             // Arrange
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Valid Name",
-                Color = color 
+                Color = color
             };
 
             // Act
@@ -120,10 +120,10 @@ namespace CategoryService.Tests.DtoTests
         public void CategoryDto_WithInvalidColor_ShouldFailValidation(string color)
         {
             // Arrange
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Valid Name",
-                Color = color 
+                Color = color
             };
 
             // Act
@@ -138,10 +138,10 @@ namespace CategoryService.Tests.DtoTests
         public void CategoryDto_WithNullDescription_ShouldPassValidation()
         {
             // Arrange
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Valid Name",
-                Description = null 
+                Description = null
             };
 
             // Act
@@ -155,10 +155,10 @@ namespace CategoryService.Tests.DtoTests
         public void CategoryDto_WithEmptyDescription_ShouldPassValidation()
         {
             // Arrange
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Valid Name",
-                Description = "" 
+                Description = ""
             };
 
             // Act
@@ -173,10 +173,10 @@ namespace CategoryService.Tests.DtoTests
         {
             // Arrange
             var maxDescription = new string('A', 500);
-            var dto = new CategoryDto 
-            { 
+            var dto = new CategoryDto
+            {
                 Name = "Valid Name",
-                Description = maxDescription 
+                Description = maxDescription
             };
 
             // Act
