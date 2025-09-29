@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CategoryService.Repositories
 {
-    public class CategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly CategoryDbContext _context;
 

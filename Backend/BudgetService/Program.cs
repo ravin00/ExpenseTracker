@@ -1,86 +1,166 @@
 using BudgetService.Data;
+using BudgetService.Middleware;
 using BudgetService.Repositories;
+using BudgetService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/budgetservice-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-// DbContext
-builder.Services.AddDbContext<BudgetDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BudgetDb")));
-
-// Services & repositories
-builder.Services.AddScoped<BudgetRepository>();
-builder.Services.AddScoped<BudgetService.Services.BudgetService>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+try
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "BudgetService API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Add Serilog
+    builder.Host.UseSerilog();
+
+    // DbContext with validation
+    var connectionString = builder.Configuration.GetConnectionString("BudgetDb");
+    if (string.IsNullOrEmpty(connectionString))
     {
-        Description = "JWT Authorization header using the Bearer scheme.",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        throw new InvalidOperationException("BudgetDb connection string is not configured");
+    }
+
+    builder.Services.AddDbContext<BudgetDbContext>(options =>
+        options.UseSqlServer(connectionString));
+
+    // Services & repositories
+    builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+    builder.Services.AddScoped<IBudgetService, BudgetService.Services.BudgetService>();
+
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+
+    // Enhanced Swagger configuration
+    builder.Services.AddSwaggerGen(c =>
     {
+        c.SwaggerDoc("v1", new OpenApiInfo
         {
-            new OpenApiSecurityScheme
+            Title = "ExpenseTracker Budget API",
+            Version = "v1",
+            Description = "Budget management service for ExpenseTracker application"
+        });
+
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
             {
-                Reference = new OpenApiReference
+                new OpenApiSecurityScheme
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     });
-});
 
-// JWT authentication
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "default-secret-key-for-development";
-var key = Encoding.ASCII.GetBytes(jwtSecret);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+    // JWT authentication with validation
+    var jwtSecret = builder.Configuration["Jwt:Secret"];
+    if (string.IsNullOrEmpty(jwtSecret))
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
+        jwtSecret = "default-secret-key-for-development";
+        Log.Warning("Using default JWT secret. This should not be used in production!");
+    }
 
-var app = builder.Build();
+    var key = Encoding.ASCII.GetBytes(jwtSecret);
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false; // Set to true in production
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
-// Auto-migrate database
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
-    context.Database.EnsureCreated();
+    // Add CORS
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    });
+
+    // Add health checks
+    builder.Services.AddHealthChecks()
+        .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+
+    var app = builder.Build();
+
+    // Configure middleware pipeline
+    app.UseMiddleware<GlobalExceptionMiddleware>();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Budget API V1");
+            c.RoutePrefix = "swagger";
+        });
+    }
+
+    app.UseCors("AllowAll");
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+    app.MapHealthChecks("/health");
+
+    // Auto-migrate database
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<BudgetDbContext>();
+        context.Database.EnsureCreated();
+        Log.Information("Budget database initialized successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Failed to initialize budget database");
+        Log.Warning("Service will start but database features won't work until SQL Server is available");
+    }
+
+    Log.Information("Budget Service starting...");
+    app.Run();
 }
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Budget Service failed to start");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

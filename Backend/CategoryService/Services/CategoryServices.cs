@@ -4,11 +4,11 @@ using CategoryService.Repositories;
 
 namespace CategoryService.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
-        private readonly CategoryRepository _repository;
+        private readonly ICategoryRepository _repository;
 
-        public CategoryService(CategoryRepository repository)
+        public CategoryService(ICategoryRepository repository)
         {
             _repository = repository;
         }
