@@ -10,7 +10,7 @@ namespace AuthService.Helpers
     {
         private readonly string _secret;
 
-        public JwtHelper(string secret)
+        public JwtHelper(string secret) // TODO : convert this to a private constructor
         {
             _secret = secret;
         }
