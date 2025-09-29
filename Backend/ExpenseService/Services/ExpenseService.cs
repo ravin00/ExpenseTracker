@@ -5,11 +5,11 @@ using ExpenseService.Repositories;
 
 namespace ExpenseService.Services
 {
-    public class ExpenseService
+    public class ExpenseService : IExpenseService
     {
-        private readonly ExpenseRepository _repository;
+        private readonly IExpenseRepository _repository;
 
-        public ExpenseService(ExpenseRepository repository)
+        public ExpenseService(IExpenseRepository repository)
         {
             _repository = repository;
         }
@@ -31,7 +31,9 @@ namespace ExpenseService.Services
                 UserId = userId,
                 Description = dto.Description,
                 Amount = dto.Amount,
-                Date = dto.Date
+                Date = dto.Date,
+                Category = dto.Category,
+                Notes = dto.Notes
             };
 
             await _repository.AddAsync(expense);
