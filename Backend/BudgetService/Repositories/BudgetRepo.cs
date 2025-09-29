@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BudgetService.Repositories
 {
-    public class BudgetRepository
+    public class BudgetRepository : IBudgetRepository
     {
         private readonly BudgetDbContext _context;
 

@@ -4,11 +4,11 @@ using BudgetService.Repositories;
 
 namespace BudgetService.Services
 {
-    public class BudgetService
+    public class BudgetService : IBudgetService
     {
-        private readonly BudgetRepository _repository;
+        private readonly IBudgetRepository _repository;
 
-        public BudgetService(BudgetRepository repository)
+        public BudgetService(IBudgetRepository repository)
         {
             _repository = repository;
         }
