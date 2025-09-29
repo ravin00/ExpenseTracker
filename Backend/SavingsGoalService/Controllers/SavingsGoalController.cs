@@ -3,6 +3,7 @@ using SavingsGoalService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using SavingsGoalService.Services;
 
 namespace SavingsGoalService.Controllers
 {
@@ -11,9 +12,9 @@ namespace SavingsGoalService.Controllers
     [Authorize] // Require JWT
     public class SavingsGoalController : ControllerBase
     {
-        private readonly Services.SavingsGoalService _service;
+        private readonly ISavingsGoalService _service;
 
-        public SavingsGoalController(Services.SavingsGoalService service)
+        public SavingsGoalController(ISavingsGoalService service)
         {
             _service = service;
         }
@@ -32,9 +33,9 @@ namespace SavingsGoalService.Controllers
                 var goals = await _service.GetSavingsGoalsAsync(GetUserId(), status);
                 return Ok(goals);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { message = "An error occurred while retrieving savings goals", error = ex.Message });
+                return StatusCode(500, new { message = "An error occurred while retrieving savings goals" });
             }
         }
 
