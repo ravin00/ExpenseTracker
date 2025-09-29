@@ -144,7 +144,7 @@ try
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<SavingsGoalDbContext>();
-        context.Database.EnsureCreated();
+        context.Database.Migrate();
         Log.Information("SavingsGoal database initialized successfully");
     }
     catch (Exception ex)
