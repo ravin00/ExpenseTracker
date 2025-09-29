@@ -58,9 +58,9 @@ namespace SavingsGoalService.Repositories
         {
             var cutoffDate = DateTime.UtcNow.AddDays(daysFromNow);
             return await _context.SavingsGoals
-                .Where(sg => sg.UserId == userId && 
+                .Where(sg => sg.UserId == userId &&
                            sg.Status == SavingsGoalStatus.Active &&
-                           sg.TargetDate.HasValue && 
+                           sg.TargetDate.HasValue &&
                            sg.TargetDate.Value <= cutoffDate &&
                            sg.CurrentAmount < sg.TargetAmount)
                 .OrderBy(sg => sg.TargetDate)
@@ -77,14 +77,14 @@ namespace SavingsGoalService.Repositories
         public async Task UpdateAsync(SavingsGoal savingsGoal)
         {
             savingsGoal.UpdatedAt = DateTime.UtcNow;
-            
+
             // Mark as completed if target reached
             if (savingsGoal.CurrentAmount >= savingsGoal.TargetAmount && savingsGoal.Status == SavingsGoalStatus.Active)
             {
                 savingsGoal.Status = SavingsGoalStatus.Completed;
                 savingsGoal.CompletedAt = DateTime.UtcNow;
             }
-            
+
             _context.SavingsGoals.Update(savingsGoal);
             await _context.SaveChangesAsync();
         }

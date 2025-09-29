@@ -69,30 +69,30 @@ namespace SavingsGoalService.Tests.RepositoryTests
         {
             // Arrange
             var userId = 1;
-            var dueSoon = new SavingsGoal 
-            { 
-                Name = "Due Soon", 
-                TargetAmount = 1000m, 
+            var dueSoon = new SavingsGoal
+            {
+                Name = "Due Soon",
+                TargetAmount = 1000m,
                 CurrentAmount = 500m,
-                UserId = userId, 
+                UserId = userId,
                 Status = SavingsGoalStatus.Active,
                 TargetDate = DateTime.UtcNow.AddDays(15)
             };
-            var dueLater = new SavingsGoal 
-            { 
-                Name = "Due Later", 
-                TargetAmount = 2000m, 
+            var dueLater = new SavingsGoal
+            {
+                Name = "Due Later",
+                TargetAmount = 2000m,
                 CurrentAmount = 1000m,
-                UserId = userId, 
+                UserId = userId,
                 Status = SavingsGoalStatus.Active,
                 TargetDate = DateTime.UtcNow.AddDays(45)
             };
-            var completed = new SavingsGoal 
-            { 
-                Name = "Completed", 
-                TargetAmount = 1000m, 
+            var completed = new SavingsGoal
+            {
+                Name = "Completed",
+                TargetAmount = 1000m,
                 CurrentAmount = 1000m,
-                UserId = userId, 
+                UserId = userId,
                 Status = SavingsGoalStatus.Active,
                 TargetDate = DateTime.UtcNow.AddDays(10)
             };
@@ -125,7 +125,7 @@ namespace SavingsGoalService.Tests.RepositoryTests
             // Assert
             result.Should().NotBeNull();
             result.Id.Should().BeGreaterThan(0);
-            
+
             var savedGoal = await _context.SavingsGoals.FindAsync(result.Id);
             savedGoal.Should().NotBeNull();
             savedGoal!.Name.Should().Be("New Goal");

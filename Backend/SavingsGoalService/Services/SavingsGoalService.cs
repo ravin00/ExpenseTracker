@@ -15,7 +15,7 @@ namespace SavingsGoalService.Services
 
         public async Task<List<SavingsGoal>> GetSavingsGoalsAsync(int userId, SavingsGoalStatus? status = null)
         {
-            return status.HasValue 
+            return status.HasValue
                 ? await _repository.GetByStatusAsync(userId, status.Value)
                 : await _repository.GetAllAsync(userId);
         }
@@ -158,7 +158,7 @@ namespace SavingsGoalService.Services
             }
 
             savingsGoal.CurrentAmount -= dto.Amount;
-            
+
             // If goal was completed but now below target, reactivate it
             if (savingsGoal.Status == SavingsGoalStatus.Completed && savingsGoal.CurrentAmount < savingsGoal.TargetAmount)
             {
@@ -184,7 +184,7 @@ namespace SavingsGoalService.Services
         public async Task<object> GetSavingsStatisticsAsync(int userId)
         {
             var allGoals = await _repository.GetAllAsync(userId);
-            
+
             return new
             {
                 TotalGoals = allGoals.Count,

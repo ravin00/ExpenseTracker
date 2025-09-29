@@ -74,8 +74,8 @@ namespace SavingsGoalService.Tests.ServiceTests
             result.Should().NotBeNull();
             result.Name.Should().Be(dto.Name);
             result.TargetAmount.Should().Be(dto.TargetAmount);
-            _mockRepository.Verify(r => r.AddAsync(It.Is<SavingsGoal>(g => 
-                g.Name == dto.Name && 
+            _mockRepository.Verify(r => r.AddAsync(It.Is<SavingsGoal>(g =>
+                g.Name == dto.Name &&
                 g.TargetAmount == dto.TargetAmount &&
                 g.UserId == userId)), Times.Once);
         }
