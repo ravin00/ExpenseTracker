@@ -4,11 +4,11 @@ using SavingsGoalService.Repositories;
 
 namespace SavingsGoalService.Services
 {
-    public class SavingsGoalService
+    public class SavingsGoalService : ISavingsGoalService
     {
-        private readonly SavingsGoalRepository _repository;
+        private readonly ISavingsGoalRepository _repository;
 
-        public SavingsGoalService(SavingsGoalRepository repository)
+        public SavingsGoalService(ISavingsGoalRepository repository)
         {
             _repository = repository;
         }

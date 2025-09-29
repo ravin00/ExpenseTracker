@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SavingsGoalService.Repositories
 {
-    public class SavingsGoalRepository
+    public class SavingsGoalRepository : ISavingsGoalRepository
     {
         private readonly SavingsGoalDbContext _context;
 
@@ -17,7 +17,7 @@ namespace SavingsGoalService.Repositories
         {
             return await _context.SavingsGoals
                 .Where(sg => sg.UserId == userId)
-                .OrderBy(sg => sg.Priority)
+                .OrderByDescending(sg => sg.Priority)
                 .ThenBy(sg => sg.Name)
                 .ToListAsync();
         }
@@ -26,7 +26,7 @@ namespace SavingsGoalService.Repositories
         {
             return await _context.SavingsGoals
                 .Where(sg => sg.UserId == userId && sg.Status == status)
-                .OrderBy(sg => sg.Priority)
+                .OrderByDescending(sg => sg.Priority)
                 .ThenBy(sg => sg.Name)
                 .ToListAsync();
         }
