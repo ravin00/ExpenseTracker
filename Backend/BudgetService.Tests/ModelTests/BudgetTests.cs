@@ -125,12 +125,12 @@ namespace BudgetService.Tests.ModelTests
         public void IsValidDateRange_ShouldReturnTrueWhenEndDateIsNull()
         {
             // Arrange
-            var budget = new Budget 
-            { 
-                Name = "Test", 
-                Amount = 1000m, 
+            var budget = new Budget
+            {
+                Name = "Test",
+                Amount = 1000m,
                 StartDate = DateTime.UtcNow,
-                EndDate = null 
+                EndDate = null
             };
 
             // Act
@@ -145,12 +145,12 @@ namespace BudgetService.Tests.ModelTests
         {
             // Arrange
             var startDate = DateTime.UtcNow;
-            var budget = new Budget 
-            { 
-                Name = "Test", 
-                Amount = 1000m, 
+            var budget = new Budget
+            {
+                Name = "Test",
+                Amount = 1000m,
                 StartDate = startDate,
-                EndDate = startDate.AddDays(30) 
+                EndDate = startDate.AddDays(30)
             };
 
             // Act
@@ -165,12 +165,12 @@ namespace BudgetService.Tests.ModelTests
         {
             // Arrange
             var startDate = DateTime.UtcNow;
-            var budget = new Budget 
-            { 
-                Name = "Test", 
-                Amount = 1000m, 
+            var budget = new Budget
+            {
+                Name = "Test",
+                Amount = 1000m,
                 StartDate = startDate,
-                EndDate = startDate.AddDays(-1) 
+                EndDate = startDate.AddDays(-1)
             };
 
             // Act
@@ -271,9 +271,9 @@ namespace BudgetService.Tests.ModelTests
         public void DaysRemaining_ShouldCalculateCorrectly(int daysFromNow, int expected)
         {
             // Arrange
-            var budget = new Budget 
-            { 
-                Name = "Test", 
+            var budget = new Budget
+            {
+                Name = "Test",
                 Amount = 1000m,
                 EndDate = DateTime.UtcNow.AddDays(daysFromNow)
             };
@@ -324,11 +324,11 @@ namespace BudgetService.Tests.ModelTests
         public void IsRecentlyCreated_ShouldReturnCorrectResult(int daysOffset, bool expected)
         {
             // Arrange
-            var budget = new Budget 
-            { 
-                Name = "Test", 
+            var budget = new Budget
+            {
+                Name = "Test",
                 Amount = 1000m,
-                CreatedAt = DateTime.UtcNow.AddDays(daysOffset) 
+                CreatedAt = DateTime.UtcNow.AddDays(daysOffset)
             };
 
             // Act
@@ -346,9 +346,9 @@ namespace BudgetService.Tests.ModelTests
         public void IsNearDeadline_ShouldReturnCorrectResult(int daysFromNow, bool expected)
         {
             // Arrange
-            var budget = new Budget 
-            { 
-                Name = "Test", 
+            var budget = new Budget
+            {
+                Name = "Test",
                 Amount = 1000m,
                 EndDate = daysFromNow > 0 ? DateTime.UtcNow.AddDays(daysFromNow) : null
             };

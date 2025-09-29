@@ -42,8 +42,8 @@ namespace BudgetService.Models
         // Validation methods
         public bool IsValidName()
         {
-            return !string.IsNullOrWhiteSpace(Name) && 
-                   Name.Length >= 1 && 
+            return !string.IsNullOrWhiteSpace(Name) &&
+                   Name.Length >= 1 &&
                    Name.Length <= 100;
         }
 
