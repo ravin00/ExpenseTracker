@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using Prometheus;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -138,6 +139,7 @@ try
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+    app.MapMetrics();
 
     // Auto-migrate database
     try

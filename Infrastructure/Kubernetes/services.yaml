@@ -1,0 +1,431 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: auth-service
+          image: auth-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__DefaultConnection
+              value: Server=sqlserver,1433;Database=$(AUTH_DB_NAME);User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true;
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: JWT_SECRET
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_AUDIENCE
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: expensetracker
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expense-service
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expense-service
+  template:
+    metadata:
+      labels:
+        app: expense-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: expense-service
+          image: expense-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__ExpenseDb
+              value: Server=sqlserver,1433;Database=$(EXPENSE_DB_NAME);User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true;
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: JWT_SECRET
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_AUDIENCE
+            - name: AuthService__BaseUrl
+              value: http://auth-service
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expense-service
+  namespace: expensetracker
+spec:
+  selector:
+    app: expense-service
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: category-service
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: category-service
+  template:
+    metadata:
+      labels:
+        app: category-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: category-service
+          image: category-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__CategoryDb
+              value: Server=sqlserver,1433;Database=$(CATEGORY_DB_NAME);User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true;
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: JWT_SECRET
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_AUDIENCE
+            - name: AuthService__BaseUrl
+              value: http://auth-service
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: category-service
+  namespace: expensetracker
+spec:
+  selector:
+    app: category-service
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: budget-service
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: budget-service
+  template:
+    metadata:
+      labels:
+        app: budget-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: budget-service
+          image: budget-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__BudgetDb
+              value: Server=sqlserver,1433;Database=$(BUDGET_DB_NAME);User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true;
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: JWT_SECRET
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_AUDIENCE
+            - name: AuthService__BaseUrl
+              value: http://auth-service
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: budget-service
+  namespace: expensetracker
+spec:
+  selector:
+    app: budget-service
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: savings-goal-service
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: savings-goal-service
+  template:
+    metadata:
+      labels:
+        app: savings-goal-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: savings-goal-service
+          image: savings-goal-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__SavingsGoalDb
+              value: Server=sqlserver,1433;Database=$(SAVINGS_DB_NAME);User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true;
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: JWT_SECRET
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_AUDIENCE
+            - name: AuthService__BaseUrl
+              value: http://auth-service
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: savings-goal-service
+  namespace: expensetracker
+spec:
+  selector:
+    app: savings-goal-service
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-service
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analytics-service
+  template:
+    metadata:
+      labels:
+        app: analytics-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: analytics-service
+          image: analytics-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ConnectionStrings__AnalyticsDb
+              value: Server=sqlserver,1433;Database=$(ANALYTICS_DB_NAME);User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true;
+            - name: Jwt__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: JWT_SECRET
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_ISSUER
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: JWT_AUDIENCE
+            - name: ExpenseService__BaseUrl
+              value: http://expense-service
+            - name: BudgetService__BaseUrl
+              value: http://budget-service
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-service
+  namespace: expensetracker
+spec:
+  selector:
+    app: analytics-service
+  ports:
+    - port: 80
+      targetPort: 80

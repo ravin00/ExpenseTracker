@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: PLACEHOLDER-NAME
+  namespace: expensetracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: PLACEHOLDER-NAME
+  template:
+    metadata:
+      labels:
+        app: PLACEHOLDER-NAME
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "80"
+    spec:
+      containers:
+        - name: PLACEHOLDER-NAME
+          image: ghcr.io/your-org/PLACEHOLDER-NAME:latest
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: expensetracker-config
+            - secretRef:
+                name: expensetracker-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: PLACEHOLDER-NAME
+  namespace: expensetracker
+spec:
+  selector:
+    app: PLACEHOLDER-NAME
+  ports:
+    - port: 80
+      targetPort: 80
