@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # SQL Server Database
@@ -65,6 +65,30 @@ services:
       - expensetracker-network
     restart: unless-stopped
 
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ./Backend/AnalyticsService
+      dockerfile: Dockerfile
+    container_name: expensetracker-analytics
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__AnalyticsDb=Server=${DB_SERVER},${DB_PORT};Database=${ANALYTICS_DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - ExpenseService__BaseUrl=http://expense-service:80
+      - BudgetService__BaseUrl=http://budget-service:80
+    ports:
+      - "${ANALYTICS_SERVICE_PORT}:80"
+    depends_on:
+      - sqlserver
+      - auth-service
+      - expense-service
+    networks:
+      - expensetracker-network
+    restart: unless-stopped
+
   # Optional: Nginx Reverse Proxy (Gateway)
   gateway:
     image: nginx:alpine
@@ -76,6 +100,7 @@ services:
     depends_on:
       - auth-service
       - expense-service
+      - analytics-service
     networks:
       - expensetracker-network
     restart: unless-stopped

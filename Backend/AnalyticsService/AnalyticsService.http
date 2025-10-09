@@ -1,0 +1,93 @@
+### Analytics Service API Tests
+
+@baseUrl = https://localhost:7006
+@authToken = your-jwt-token-here
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Get All Analytics
+GET {{baseUrl}}/api/analytics
+Authorization: Bearer {{authToken}}
+
+### Get Analytics by ID
+GET {{baseUrl}}/api/analytics/1
+Authorization: Bearer {{authToken}}
+
+### Get Analytics Dashboard
+GET {{baseUrl}}/api/analytics/dashboard
+Authorization: Bearer {{authToken}}
+
+### Get Financial Summary (Current Month)
+@startDate = 2024-10-01
+@endDate = 2024-10-31
+GET {{baseUrl}}/api/analytics/summary?startDate={{startDate}}&endDate={{endDate}}
+Authorization: Bearer {{authToken}}
+
+### Get Expenses by Category
+GET {{baseUrl}}/api/analytics/categories?startDate={{startDate}}&endDate={{endDate}}
+Authorization: Bearer {{authToken}}
+
+### Get Spending Trends
+GET {{baseUrl}}/api/analytics/trends?period=Monthly&months=12
+Authorization: Bearer {{authToken}}
+
+### Get Analytics by Date Range
+GET {{baseUrl}}/api/analytics/range?startDate={{startDate}}&endDate={{endDate}}
+Authorization: Bearer {{authToken}}
+
+### Create Analytics
+POST {{baseUrl}}/api/analytics
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "date": "2024-10-09",
+  "totalExpenses": 500.00,
+  "totalIncome": 2000.00,
+  "totalSavings": 300.00,
+  "budgetUtilization": 80.5,
+  "categoryId": 1,
+  "categoryName": "Food & Dining",
+  "categoryAmount": 150.00,
+  "period": "Monthly"
+}
+
+### Update Analytics
+PUT {{baseUrl}}/api/analytics/1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "date": "2024-10-09",
+  "totalExpenses": 550.00,
+  "totalIncome": 2000.00,
+  "totalSavings": 350.00,
+  "budgetUtilization": 85.0,
+  "categoryId": 1,
+  "categoryName": "Food & Dining",
+  "categoryAmount": 175.00,
+  "period": "Monthly"
+}
+
+### Generate Analytics
+POST {{baseUrl}}/api/analytics/generate
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "startDate": "2024-10-09",
+  "period": "Daily"
+}
+
+### Get Health Status
+GET {{baseUrl}}/api/analytics/health-status
+Authorization: Bearer {{authToken}}
+
+### Delete Analytics
+DELETE {{baseUrl}}/api/analytics/1
+Authorization: Bearer {{authToken}}
+
+### Get Analytics by Period (Query Parameter)
+GET {{baseUrl}}/api/analytics?period=Monthly
+Authorization: Bearer {{authToken}}
