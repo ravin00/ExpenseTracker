@@ -1,0 +1,5 @@
+base/
+overlays/
+templates/
+*.disabled
+kustomization.yaml
