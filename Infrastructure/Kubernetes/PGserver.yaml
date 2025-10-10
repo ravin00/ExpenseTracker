@@ -11,7 +11,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: fast-ssd  # Use appropriate storage class
+  storageClassName: hostpath  # Changed back to hostpath to avoid immutable field conflict
   resources:
     requests:
       storage: 20Gi  # Increased for production
