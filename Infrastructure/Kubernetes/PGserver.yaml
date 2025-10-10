@@ -3,12 +3,18 @@ kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
   namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: database
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: fast-ssd  # Use appropriate storage class
   resources:
     requests:
-      storage: 5Gi
+      storage: 20Gi  # Increased for production
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -17,21 +23,56 @@ metadata:
   namespace: expensetracker
   labels:
     app: postgres
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: database
+    app.kubernetes.io/version: "16-alpine"
+    app.kubernetes.io/managed-by: argocd
 spec:
   replicas: 1
+  strategy:
+    type: Recreate  # Important for stateful applications
   selector:
     matchLabels:
       app: postgres
+      app.kubernetes.io/name: expensetracker
+      app.kubernetes.io/component: database
   template:
     metadata:
       labels:
         app: postgres
+        app.kubernetes.io/name: expensetracker
+        app.kubernetes.io/component: database
+        app.kubernetes.io/version: "16-alpine"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
     spec:
+      serviceAccountName: expensetracker-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: postgres
         image: postgres:16-alpine
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false  # PostgreSQL needs to write to /var/lib/postgresql/data
+          runAsNonRoot: true
+          runAsUser: 999
+          runAsGroup: 999
+          capabilities:
+            drop:
+            - ALL
         ports:
-        - containerPort: 5432
+        - name: postgres
+          containerPort: 5432
+          protocol: TCP
         env:
         - name: POSTGRES_DB
           value: "postgres"
@@ -47,46 +88,105 @@ spec:
               key: DB_PASSWORD
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_INITDB_ARGS
+          value: "--auth-host=md5"
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
+        - name: tmp
+          mountPath: /tmp
+        - name: run
+          mountPath: /var/run/postgresql
         resources:
           requests:
-            memory: "256Mi"
+            memory: "512Mi"
             cpu: "250m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "2Gi"
+            cpu: "1000m"
         livenessProbe:
           exec:
             command:
             - pg_isready
             - -U
             - postgres
-          initialDelaySeconds: 30
+            - -d
+            - postgres
+          initialDelaySeconds: 45
           periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         readinessProbe:
           exec:
             command:
             - pg_isready
             - -U
             - postgres
-          initialDelaySeconds: 5
+            - -d
+            - postgres
+          initialDelaySeconds: 10
           periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+            - -d
+            - postgres
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
           claimName: postgres-pvc
+      - name: tmp
+        emptyDir: {}
+      - name: run
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: postgres-service
   namespace: expensetracker
+  labels:
+    app: postgres
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: database
+    app.kubernetes.io/version: "16-alpine"
+    app.kubernetes.io/managed-by: argocd
 spec:
   selector:
     app: postgres
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: database
   ports:
-  - port: 5432
-    targetPort: 5432
+  - name: postgres
+    port: 5432
+    targetPort: postgres
+    protocol: TCP
   type: ClusterIP
+---
+# PodDisruptionBudget for high availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: database
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: postgres
+      app.kubernetes.io/name: expensetracker
+      app.kubernetes.io/component: database
