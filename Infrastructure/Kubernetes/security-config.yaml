@@ -1,0 +1,167 @@
+# Enhanced security-focused secrets with proper encoding
+apiVersion: v1
+kind: Secret
+metadata:
+  name: expensetracker-secrets
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: secrets
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+type: Opaque
+data:
+  # Base64 encoded strong password (change this in production!)
+  # Run: echo -n 'your-strong-db-password-here' | base64
+  DB_PASSWORD: U3VwZXJTdHJvbmdQYXNzd29yZDEyMyEkJQ==
+  # Base64 encoded JWT secret (256-bit minimum)
+  # Run: openssl rand -base64 32 | base64
+  JWT_SECRET: WW91ckpXVFNlY3JldE11c3RCZUF0TGVhc3QzMkNoYXJhY3RlcnNMb25nRm9yU2VjdXJpdHk=
+  # Database connection details (for external services if needed)
+  POSTGRES_CONNECTION_STRING: SG9zdD1wb3N0Z3Jlcy1zZXJ2aWNlO1BvcnQ9NTQzMjtEYXRhYmFzZT1wb3N0Z3JlcztVc2VybmFtZT1wb3N0Z3JlcztQYXNzd29yZD1TdXBlclN0cm9uZ1Bhc3N3b3JkMTIzISQl
+---
+# Enhanced ConfigMap with proper environment separation
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: expensetracker-config
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: config
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+data:
+  # Database Configuration
+  DB_SERVER: postgres-service
+  DB_PORT: "5432"
+  DB_USER: postgres
+  
+  # Database Names
+  AUTH_DB_NAME: AuthDb
+  EXPENSE_DB_NAME: ExpenseDb
+  CATEGORY_DB_NAME: ExpenseTrackerCategories
+  BUDGET_DB_NAME: ExpenseTrackerBudgets
+  SAVINGS_DB_NAME: ExpenseTrackerSavingsGoals
+  ANALYTICS_DB_NAME: ExpenseTrackerAnalyticsDb
+  
+  # JWT Configuration
+  JWT_ISSUER: ExpenseTracker
+  JWT_AUDIENCE: ExpenseTrackerUsers
+  JWT_EXPIRY_MINUTES: "60"
+  
+  # Environment
+  ASPNETCORE_ENVIRONMENT: Production
+  
+  # Logging
+  LOGGING_LEVEL: Information
+  
+  # Health Check Configuration
+  HEALTH_CHECK_TIMEOUT: "5"
+  HEALTH_CHECK_INTERVAL: "30"
+  
+  # Monitoring
+  ENABLE_METRICS: "true"
+  METRICS_PORT: "80"
+---
+# RBAC Service Account for microservices
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: expensetracker-service-account
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+automountServiceAccountToken: false
+---
+# Role for limited permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: expensetracker-role
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+# Role binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: expensetracker-role-binding
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+subjects:
+- kind: ServiceAccount
+  name: expensetracker-service-account
+  namespace: expensetracker
+roleRef:
+  kind: Role
+  name: expensetracker-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Network Policy for enhanced security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: expensetracker-network-policy
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: security
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: expensetracker
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: expensetracker
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 5432
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: expensetracker
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 5432
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53

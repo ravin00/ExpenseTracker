@@ -1,0 +1,85 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: expensetracker-base
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+# Common labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: expensetracker
+  app.kubernetes.io/managed-by: argocd
+
+# Resources in this base configuration
+resources:
+  - namespace-config.yaml
+  - security-config.yaml
+  - PGserver.yaml
+  - enhanced-services.yaml
+  - monitoring.yaml
+
+# Images that can be updated by overlays
+images:
+  - name: auth-service
+    newTag: latest
+  - name: expense-service
+    newTag: latest
+  - name: category-service
+    newTag: latest
+  - name: budget-service
+    newTag: latest
+  - name: savings-goal-service
+    newTag: latest
+  - name: analytics-service
+    newTag: latest
+  - name: postgres
+    newName: postgres
+    newTag: 16-alpine
+
+# Configuration generators
+configMapGenerator:
+  - name: expensetracker-config
+    behavior: replace
+    literals:
+      - DB_SERVER=postgres-service
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - AUTH_DB_NAME=AuthDb
+      - EXPENSE_DB_NAME=ExpenseDb
+      - CATEGORY_DB_NAME=ExpenseTrackerCategories
+      - BUDGET_DB_NAME=ExpenseTrackerBudgets
+      - SAVINGS_DB_NAME=ExpenseTrackerSavingsGoals
+      - ANALYTICS_DB_NAME=ExpenseTrackerAnalyticsDb
+      - JWT_ISSUER=ExpenseTracker
+      - JWT_AUDIENCE=ExpenseTrackerUsers
+      - JWT_EXPIRY_MINUTES=60
+      - ASPNETCORE_ENVIRONMENT=Production
+      - LOGGING_LEVEL=Information
+      - HEALTH_CHECK_TIMEOUT=5
+      - HEALTH_CHECK_INTERVAL=30
+      - ENABLE_METRICS=true
+      - METRICS_PORT=80
+
+secretGenerator:
+  - name: expensetracker-secrets
+    behavior: replace
+    literals:
+      - DB_PASSWORD=SuperStrongPassword123!$$
+      - JWT_SECRET=YourJWTSecretMustBeAtLeast32CharactersLongForSecurity
+
+# Namespace for all resources
+namespace: expensetracker
+
+# Transformers
+transformers:
+  - |-
+    apiVersion: builtin
+    kind: LabelTransformer
+    metadata:
+      name: add-version-labels
+    labels:
+      app.kubernetes.io/version: "1.0"
+    fieldSpecs:
+    - path: metadata/labels
+      create: true

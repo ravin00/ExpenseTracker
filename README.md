@@ -15,6 +15,7 @@ A modern, microservices-based expense tracking application built with .NET 9.0, 
 - [API Documentation](#-api-documentation)
 - [Development](#-development)
 - [Deployment](#-deployment)
+- [Documentation](#-documentation)
 - [Contributing](#-contributing)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
@@ -333,6 +334,38 @@ curl http://localhost:5003/health  # Budget Service
 curl http://localhost:5004/health  # Analytics Service
 ```
 
+## 📖 Documentation
+
+Comprehensive documentation is available in the [`docs/`](docs/) folder:
+
+### 📂 Documentation Overview
+
+- **[📋 Documentation Index](docs/README.md)** - Complete documentation guide and navigation
+- **[🏗️ Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)** - Production-ready infrastructure setup and best practices
+- **[🚀 ArgoCD Deployment](docs/ArgoCD-Deployment.md)** - GitOps deployment with ArgoCD
+- **[🔒 Security Guide](docs/SECURITY.md)** - Security practices and vulnerability reporting
+- **[⚡ General Improvements](docs/IMPROVEMENTS.md)** - Project enhancements and features
+- **[🛠️ Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md)** - Backend code quality tracking
+
+### 🎯 Quick Documentation Links
+
+| Role | Recommended Starting Point |
+|------|---------------------------|
+| **Developers** | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) → [General Improvements](docs/IMPROVEMENTS.md) |
+| **DevOps Engineers** | [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) → [ArgoCD Deployment](docs/ArgoCD-Deployment.md) |
+| **Security Teams** | [Security Guide](docs/SECURITY.md) → [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) |
+| **Project Managers** | [Documentation Index](docs/README.md) → [General Improvements](docs/IMPROVEMENTS.md) |
+
+### 📈 Infrastructure Features
+
+- ✅ **Production-ready Kubernetes** manifests with Kustomize overlays
+- ✅ **GitOps deployment** with ArgoCD for multiple environments
+- ✅ **Security hardening** with RBAC, network policies, and security contexts
+- ✅ **Auto-scaling** with HPA and resource management
+- ✅ **Monitoring stack** with Prometheus and Grafana
+- ✅ **Backup strategy** with automated PostgreSQL backups
+- ✅ **TLS ingress** with rate limiting and security headers
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
@@ -473,7 +506,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 **[⬆ Back to Top](#expensetracker)**
-
-Made with ❤️ by the ExpenseTracker Team
-
 </div>

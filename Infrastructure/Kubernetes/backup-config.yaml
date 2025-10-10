@@ -1,0 +1,290 @@
+---
+# PostgreSQL Backup CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: backup
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: expensetracker
+            app.kubernetes.io/component: backup
+        spec:
+          serviceAccountName: expensetracker-backup-sa
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+          - name: postgres-backup
+            image: postgres:16-alpine
+            imagePullPolicy: IfNotPresent
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: 999
+              runAsGroup: 999
+              capabilities:
+                drop:
+                - ALL
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              BACKUP_FILE="/backup/expensetracker_backup_${TIMESTAMP}.sql"
+              
+              echo "Starting backup at $(date)"
+              
+              # Create backup
+              PGPASSWORD=$POSTGRES_PASSWORD pg_dumpall \
+                -h $DB_HOST \
+                -U $DB_USER \
+                -f $BACKUP_FILE
+              
+              echo "Backup completed: $BACKUP_FILE"
+              
+              # Compress backup
+              gzip $BACKUP_FILE
+              echo "Backup compressed: ${BACKUP_FILE}.gz"
+              
+              # Cleanup old backups (keep last 7 days)
+              find /backup -name "*.gz" -mtime +7 -delete
+              echo "Old backups cleaned up"
+              
+              # Verify backup integrity
+              if [ -f "${BACKUP_FILE}.gz" ]; then
+                echo "Backup verification: SUCCESS"
+                ls -lh "${BACKUP_FILE}.gz"
+              else
+                echo "Backup verification: FAILED"
+                exit 1
+              fi
+            env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: DB_SERVER
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: expensetracker-config
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: expensetracker-secrets
+                  key: DB_PASSWORD
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            - name: tmp
+              mountPath: /tmp
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: postgres-backup-pvc
+          - name: tmp
+            emptyDir: {}
+---
+# PVC for backup storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backup-pvc
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: backup
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 50Gi
+---
+# Service Account for backup operations
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: expensetracker-backup-sa
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: backup
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+automountServiceAccountToken: false
+---
+# Role for backup operations
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: expensetracker-backup-role
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: backup
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+# Role binding for backup
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: expensetracker-backup-binding
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: backup
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+subjects:
+- kind: ServiceAccount
+  name: expensetracker-backup-sa
+  namespace: expensetracker
+roleRef:
+  kind: Role
+  name: expensetracker-backup-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Backup restore job template (to be used manually when needed)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-restore-template
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: restore
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: manual
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: expensetracker
+        app.kubernetes.io/component: restore
+    spec:
+      serviceAccountName: expensetracker-backup-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      restartPolicy: Never
+      containers:
+      - name: postgres-restore
+        image: postgres:16-alpine
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 999
+          runAsGroup: 999
+          capabilities:
+            drop:
+            - ALL
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          
+          # List available backups
+          echo "Available backups:"
+          ls -la /backup/*.gz
+          
+          # Use the latest backup or specify BACKUP_FILE environment variable
+          if [ -z "$BACKUP_FILE" ]; then
+            BACKUP_FILE=$(ls -t /backup/*.gz | head -1)
+          fi
+          
+          echo "Restoring from: $BACKUP_FILE"
+          
+          # Decompress and restore
+          gunzip -c $BACKUP_FILE | PGPASSWORD=$POSTGRES_PASSWORD psql \
+            -h $DB_HOST \
+            -U $DB_USER \
+            -d postgres
+          
+          echo "Restore completed successfully"
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: expensetracker-config
+              key: DB_SERVER
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: expensetracker-config
+              key: DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: expensetracker-secrets
+              key: DB_PASSWORD
+        # - name: BACKUP_FILE
+        #   value: "/backup/expensetracker_backup_20241010_020000.sql.gz"  # Specify backup file to restore
+        volumeMounts:
+        - name: backup-storage
+          mountPath: /backup
+        - name: tmp
+          mountPath: /tmp
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      volumes:
+      - name: backup-storage
+        persistentVolumeClaim:
+          claimName: postgres-backup-pvc
+      - name: tmp
+        emptyDir: {}

@@ -1,16 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: expensetracker-app
+  name: expensetracker-production
   namespace: argocd
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: argocd
+    app.kubernetes.io/environment: production
+    app.kubernetes.io/managed-by: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: production
   source:
     repoURL: https://github.com/ravin00/ExpenseTracker
     targetRevision: HEAD
-    path: Infrastructure/Kubernetes
+    path: Infrastructure/Kubernetes/overlays/production
   destination:
     server: https://kubernetes.default.svc
     namespace: expensetracker
@@ -21,3 +26,16 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - PrunePropagationPolicy=foreground
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  info:
+  - name: 'Environment'
+    value: 'production'
+  - name: 'Documentation'
+    value: 'https://github.com/ravin00/ExpenseTracker/blob/main/Infrastructure/README.md'

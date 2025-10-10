@@ -1,0 +1,168 @@
+---
+# Ingress with TLS for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: expensetracker-ingress
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://expensetracker.yourdomain.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    # Security headers
+    nginx.ingress.kubernetes.io/server-snippet: |
+      add_header X-Frame-Options DENY;
+      add_header X-Content-Type-Options nosniff;
+      add_header X-XSS-Protection "1; mode=block";
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.expensetracker.yourdomain.com
+    secretName: expensetracker-tls
+  rules:
+  - host: api.expensetracker.yourdomain.com
+    http:
+      paths:
+      - path: /auth(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+      - path: /expenses(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: expense-service
+            port:
+              number: 80
+      - path: /categories(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: category-service
+            port:
+              number: 80
+      - path: /budgets(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: budget-service
+            port:
+              number: 80
+      - path: /savings(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: savings-goal-service
+            port:
+              number: 80
+      - path: /analytics(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: analytics-service
+            port:
+              number: 80
+      - path: /health(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service  # Health check can go to any service
+            port:
+              number: 80
+---
+# TLS Certificate (you would typically use cert-manager for this)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: expensetracker-tls
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: tls
+    app.kubernetes.io/managed-by: argocd
+type: kubernetes.io/tls
+data:
+  # These are dummy values - replace with real certificates
+  # Or use cert-manager to automatically generate certificates
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...  # Base64 encoded certificate
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0t...  # Base64 encoded private key
+---
+# Monitoring Ingress for Grafana and Prometheus
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: expensetracker-monitoring-ingress
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: monitoring-auth
+    nginx.ingress.kubernetes.io/auth-realm: "Monitoring Access Required"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - monitoring.expensetracker.yourdomain.com
+    secretName: expensetracker-tls
+  rules:
+  - host: monitoring.expensetracker.yourdomain.com
+    http:
+      paths:
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus
+            port:
+              number: 9090
+---
+# Basic auth secret for monitoring access
+apiVersion: v1
+kind: Secret
+metadata:
+  name: monitoring-auth
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/managed-by: argocd
+type: Opaque
+data:
+  # admin:$2y$10$... (generate with htpasswd)
+  # htpasswd -nb admin yourpassword | base64
+  auth: YWRtaW46JDJ5JDEwJEsxVE9xdTF6ZS4yVXhaTm1WeUwyZy5iTndsZE1UZDFpQlVjWm5VNEI3dndxbGVoN3lwQy4K
