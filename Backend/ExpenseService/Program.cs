@@ -31,7 +31,7 @@ try
     }
 
     builder.Services.AddDbContext<ExpenseDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseNpgsql(connectionString));
 
     // Services & repos
     builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
@@ -136,6 +136,7 @@ try
     app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseHttpMetrics();
 
     app.MapControllers();
     app.MapHealthChecks("/health");

@@ -31,7 +31,7 @@ try
     }
 
     builder.Services.AddDbContext<AnalyticsDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseNpgsql(connectionString));
 
     // Services & repositories
     builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
@@ -136,6 +136,8 @@ try
     app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
+    // Collect default HTTP metrics (requests, durations, in-progress)
+    app.UseHttpMetrics();
 
     app.MapControllers();
     app.MapHealthChecks("/health");

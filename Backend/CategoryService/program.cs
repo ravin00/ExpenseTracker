@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using Prometheus;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -30,7 +31,7 @@ try
     }
 
     builder.Services.AddDbContext<CategoryDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseNpgsql(connectionString));
 
     // Services & repositories
     builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -135,9 +136,11 @@ try
     app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseHttpMetrics();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+    app.MapMetrics();
 
     // Auto-migrate database
     try

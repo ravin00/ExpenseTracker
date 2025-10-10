@@ -41,10 +41,10 @@ namespace AuthService.Data
                           .HasMaxLength(255);
 
                                 entity.Property(e => e.CreatedAt)
-                          .HasDefaultValueSql("GETUTCDATE()");
+                          .HasDefaultValueSql("NOW()");
 
                                 entity.Property(e => e.UpdatedAt)
-                          .HasDefaultValueSql("GETUTCDATE()");
+                          .HasDefaultValueSql("NOW()");
                         });
                 }
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Serilog;
 using System.Text;
 using Prometheus;
@@ -31,7 +32,7 @@ try
     }
 
     builder.Services.AddDbContext<AuthDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseNpgsql(connectionString));
 
     // Register services
     builder.Services.AddScoped<UserRepository>();
@@ -137,6 +138,7 @@ try
     app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseHttpMetrics();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
