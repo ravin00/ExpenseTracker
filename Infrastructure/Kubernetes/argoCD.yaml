@@ -8,8 +8,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/ravin00/ExpenseTracker  # Update with your repo URL
-    targetRevision: HEAD
+    repoURL: https://github.com/ravin00/ExpenseTracker
+    targetRevision: fix/analytic-service
     path: Infrastructure/Kubernetes
   destination:
     server: https://kubernetes.default.svc
