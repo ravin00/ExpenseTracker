@@ -23,7 +23,21 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__DefaultConnection
@@ -93,7 +107,21 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__ExpenseDb
@@ -165,7 +193,21 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__CategoryDb
@@ -237,7 +279,21 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__BudgetDb
@@ -309,7 +365,21 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__SavingsGoalDb
@@ -381,7 +451,21 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__AnalyticsDb
