@@ -5,46 +5,48 @@
 case "$1" in
     "start")
         echo "Starting ExpenseTracker microservices..."
-        docker-compose up --build -d
-        echo " Services started!"
-        echo " API Gateway: http://localhost:8080"
-        echo " Auth Service: http://localhost:5001"
-        echo " Expense Service: http://localhost:5002"
+        docker-compose -f Infrastructure/Docker/docker-compose.yml --env-file Infrastructure/Docker/.env up --build -d
+        echo "✅ Services started!"
+        echo "📊 API Gateway: http://localhost:8080"
+        echo "🔐 Auth Service: http://localhost:5001"
+        echo "💰 Expense Service: http://localhost:5002"
+        echo "📈 Prometheus: http://localhost:9090"
+        echo "📊 Grafana: http://localhost:3000"
         ;;
     
     "stop")
         echo "Stopping ExpenseTracker microservices..."
-        docker-compose down
+        docker-compose -f Infrastructure/Docker/docker-compose.yml down
         echo "Services stopped!"
         ;;
     
     "restart")
         echo "Restarting ExpenseTracker microservices..."
-        docker-compose down
-        docker-compose up --build -d
-        echo " Services restarted!"
+        docker-compose -f Infrastructure/Docker/docker-compose.yml down
+        docker-compose -f Infrastructure/Docker/docker-compose.yml --env-file Infrastructure/Docker/.env up --build -d
+        echo "✅ Services restarted!"
         ;;
     
     "logs")
         if [ -n "$2" ]; then
-            echo " Showing logs for $2..."
-            docker-compose logs -f "$2"
+            echo "📋 Showing logs for $2..."
+            docker-compose -f Infrastructure/Docker/docker-compose.yml logs -f "$2"
         else
-            echo " Showing logs for all services..."
-            docker-compose logs -f
+            echo "📋 Showing logs for all services..."
+            docker-compose -f Infrastructure/Docker/docker-compose.yml logs -f
         fi
         ;;
     
     "clean")
         echo "🧹 Cleaning up ExpenseTracker (including volumes)..."
-        docker-compose down -v
+        docker-compose -f Infrastructure/Docker/docker-compose.yml down -v
         docker system prune -f
-        echo " Cleanup complete!"
+        echo "✅ Cleanup complete!"
         ;;
     
     "status")
         echo "ExpenseTracker service status:"
-        docker-compose ps
+        docker-compose -f Infrastructure/Docker/docker-compose.yml ps
         ;;
     
     "test")
@@ -59,7 +61,7 @@ case "$1" in
     
     "db")
         echo "Connecting to SQL Server..."
-        docker-compose exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ExpenseTracker123!
+        docker-compose -f Infrastructure/Docker/docker-compose.yml exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P StrongPassword123!
         ;;
     
     *)

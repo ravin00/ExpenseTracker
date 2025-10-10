@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using Prometheus;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -30,7 +31,7 @@ try
     }
 
     builder.Services.AddDbContext<AnalyticsDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseNpgsql(connectionString));
 
     // Services & repositories
     builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
@@ -135,9 +136,13 @@ try
     app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
+    // Collect default HTTP metrics (requests, durations, in-progress)
+    app.UseHttpMetrics();
 
     app.MapControllers();
     app.MapHealthChecks("/health");
+    // Expose Prometheus metrics
+    app.MapMetrics();
 
     // Auto-migrate database
     try
