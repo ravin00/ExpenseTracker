@@ -34,7 +34,7 @@ manifests:
   rawYaml:
     - Infrastructure/Kubernetes/namespace.yaml
     - Infrastructure/Kubernetes/config-secrets.yaml
-    - Infrastructure/Kubernetes/postgresql.yaml
+    - Infrastructure/Kubernetes/PGserver.yaml
     - Infrastructure/Kubernetes/services.yaml
     - Infrastructure/Kubernetes/monitoring.yaml
 deploy:
