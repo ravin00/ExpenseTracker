@@ -1,0 +1,52 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: expensetracker
+build:
+  local:
+    push: false
+  artifacts:
+    - image: auth-service
+      context: Backend/AuthService
+      docker:
+        dockerfile: Dockerfile
+    - image: expense-service
+      context: Backend/ExpenseService
+      docker:
+        dockerfile: Dockerfile
+    - image: category-service
+      context: Backend/CategoryService
+      docker:
+        dockerfile: Dockerfile
+    - image: budget-service
+      context: Backend/BudgetService
+      docker:
+        dockerfile: Dockerfile
+    - image: savings-goal-service
+      context: Backend/SavingsGoalService
+      docker:
+        dockerfile: Dockerfile
+    - image: analytics-service
+      context: Backend/AnalyticsService
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - Infrastructure/Kubernetes/namespace.yaml
+    - Infrastructure/Kubernetes/config-secrets.yaml
+    - Infrastructure/Kubernetes/sqlserver.yaml
+    - Infrastructure/Kubernetes/services.yaml
+    - Infrastructure/Kubernetes/monitoring.yaml
+deploy:
+  kubectl: {}
+portForward:
+  - resourceType: service
+    resourceName: grafana
+    namespace: expensetracker
+    port: 3000
+    localPort: 3000
+  - resourceType: service
+    resourceName: prometheus
+    namespace: expensetracker
+    port: 9090
+    localPort: 9090
