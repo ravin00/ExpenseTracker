@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/ravin00/ExpenseTracker
-    targetRevision: fix/analytic-service
+    targetRevision: HEAD
     path: Infrastructure/Kubernetes
   destination:
     server: https://kubernetes.default.svc
