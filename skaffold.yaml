@@ -34,7 +34,7 @@ manifests:
   rawYaml:
     - Infrastructure/Kubernetes/namespace.yaml
     - Infrastructure/Kubernetes/config-secrets.yaml
-    - Infrastructure/Kubernetes/sqlserver.yaml
+    - Infrastructure/Kubernetes/postgresql.yaml
     - Infrastructure/Kubernetes/services.yaml
     - Infrastructure/Kubernetes/monitoring.yaml
 deploy:
@@ -50,3 +50,12 @@ portForward:
     namespace: expensetracker
     port: 9090
     localPort: 9090
+profiles:
+  - name: argocd
+    build:
+      local:
+        push: true
+        useDockerCLI: true
+      tagPolicy:
+        envTemplate:
+          template: "{{.IMAGE_NAME}}:{{.GIT_COMMIT_SHORT}}"
