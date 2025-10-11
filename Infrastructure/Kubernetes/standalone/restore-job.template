@@ -1,0 +1,116 @@
+# PostgreSQL Restore Job Template
+# This file is for manual use only - it should NOT be applied automatically by ArgoCD
+# To use this template:
+# 1. First ensure there are backup files in the backup PVC
+# 2. Apply this job manually: kubectl apply -f restore-job.template
+# 3. Monitor the restore: kubectl logs -f job/postgres-restore-template -n expensetracker
+# 4. Clean up after completion: kubectl delete job postgres-restore-template -n expensetracker
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-restore-template
+  namespace: expensetracker
+  labels:
+    app.kubernetes.io/name: expensetracker
+    app.kubernetes.io/component: restore
+    app.kubernetes.io/version: "1.0"
+    app.kubernetes.io/managed-by: manual
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: expensetracker
+        app.kubernetes.io/component: restore
+    spec:
+      serviceAccountName: expensetracker-backup-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      restartPolicy: Never
+      containers:
+      - name: postgres-restore
+        image: postgres:16-alpine
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 999
+          runAsGroup: 999
+          capabilities:
+            drop:
+            - ALL
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          
+          # Check if backups exist
+          if ! ls /backup/*.gz > /dev/null 2>&1; then
+            echo "ERROR: No backup files found in /backup/"
+            echo "Please ensure backup job has been run first."
+            exit 1
+          fi
+          
+          # List available backups
+          echo "Available backups:"
+          ls -la /backup/*.gz
+          
+          # Use the latest backup or specify BACKUP_FILE environment variable
+          if [ -z "$BACKUP_FILE" ]; then
+            BACKUP_FILE=$(ls -t /backup/*.gz | head -1)
+          fi
+          
+          echo "Restoring from: $BACKUP_FILE"
+          
+          # Decompress and restore
+          gunzip -c $BACKUP_FILE | PGPASSWORD=$POSTGRES_PASSWORD psql \
+            -h $DB_HOST \
+            -U $DB_USER \
+            -d postgres
+          
+          echo "Restore completed successfully"
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: expensetracker-config
+              key: DB_SERVER
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: expensetracker-config
+              key: DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: expensetracker-secrets
+              key: DB_PASSWORD
+        # Uncomment and modify to restore from a specific backup file:
+        # - name: BACKUP_FILE
+        #   value: "/backup/expensetracker_backup_20241012_020000.sql.gz"
+        volumeMounts:
+        - name: backup-storage
+          mountPath: /backup
+        - name: tmp
+          mountPath: /tmp
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      volumes:
+      - name: backup-storage
+        persistentVolumeClaim:
+          claimName: postgres-backup-pvc
+      - name: tmp
+        emptyDir: {}
