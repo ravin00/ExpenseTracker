@@ -41,7 +41,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__AuthDb
-              value: Host=postgres-service;Port=5432;Database=AuthDb;Username=postgres;Password=StrongPassword123!
+              value: "Host=$(DB_SERVER);Port=$(DB_PORT);Database=$(AUTH_DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD)"
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -125,7 +125,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__ExpenseDb
-              value: Host=postgres-service;Port=5432;Database=ExpenseDb;Username=postgres;Password=StrongPassword123!
+              value: "Host=$(DB_SERVER);Port=$(DB_PORT);Database=$(EXPENSE_DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD)"
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -211,7 +211,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__CategoryDb
-              value: Host=postgres-service;Port=5432;Database=ExpenseTrackerCategories;Username=postgres;Password=StrongPassword123!
+              value: "Host=$(DB_SERVER);Port=$(DB_PORT);Database=$(CATEGORY_DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD)"
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -297,7 +297,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__BudgetDb
-              value: Host=postgres-service;Port=5432;Database=ExpenseTrackerBudgets;Username=postgres;Password=StrongPassword123!
+              value: "Host=$(DB_SERVER);Port=$(DB_PORT);Database=$(BUDGET_DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD)"
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -383,7 +383,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__SavingsGoalDb
-              value: Host=postgres-service;Port=5432;Database=ExpenseTrackerSavingsGoals;Username=postgres;Password=StrongPassword123!
+              value: "Host=$(DB_SERVER);Port=$(DB_PORT);Database=$(SAVINGS_DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD)"
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
@@ -469,7 +469,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ConnectionStrings__AnalyticsDb
-              value: Host=postgres-service;Port=5432;Database=ExpenseTrackerAnalyticsDb;Username=postgres;Password=StrongPassword123!
+              value: "Host=$(DB_SERVER);Port=$(DB_PORT);Database=$(ANALYTICS_DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD)"
             - name: Jwt__Secret
               valueFrom:
                 secretKeyRef:
