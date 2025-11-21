@@ -12,7 +12,7 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}
+  IMAGE_NAME: ${{ github.repository_owner }} # Image name is pointed to the repository owner
 
 jobs:
   # Build AuthService
@@ -42,7 +42,7 @@ jobs:
       run: |
         echo "Building AuthService..."
         dotnet build Backend/AuthService/AuthService.csproj --no-restore --configuration Release
-        echo "✅ AuthService build complete"
+        echo "AuthService build complete"
     
     - name: Upload AuthService artifacts
       uses: actions/upload-artifact@v4
@@ -80,7 +80,7 @@ jobs:
       run: |
         echo "Building ExpenseService..."
         dotnet build Backend/ExpenseService/ExpenseService.csproj --no-restore --configuration Release
-        echo "✅ ExpenseService build complete"
+        echo "ExpenseService build complete"
     
     - name: Upload ExpenseService artifacts
       uses: actions/upload-artifact@v4
@@ -118,7 +118,7 @@ jobs:
       run: |
         echo "Building CategoryService..."
         dotnet build Backend/CategoryService/CategoryService.csproj --no-restore --configuration Release
-        echo "✅ CategoryService build complete"
+        echo "CategoryService build complete"
     
     - name: Upload CategoryService artifacts
       uses: actions/upload-artifact@v4
@@ -156,7 +156,7 @@ jobs:
       run: |
         echo "Building BudgetService..."
         dotnet build Backend/BudgetService/BudgetService.csproj --no-restore --configuration Release
-        echo "✅ BudgetService build complete"
+        echo "BudgetService build complete"
     
     - name: Upload BudgetService artifacts
       uses: actions/upload-artifact@v4
@@ -194,7 +194,7 @@ jobs:
       run: |
         echo "Building SavingsGoalService..."
         dotnet build Backend/SavingsGoalService/SavingsGoalService.csproj --no-restore --configuration Release
-        echo "✅ SavingsGoalService build complete"
+        echo "SavingsGoalService build complete"
     
     - name: Upload SavingsGoalService artifacts
       uses: actions/upload-artifact@v4
@@ -232,8 +232,8 @@ jobs:
     - name: Run unit tests
       run: |
         echo "Running unit tests..."
-        dotnet test --configuration Release --verbosity normal || echo "⚠️ No test projects found"
-        echo "✅ Tests completed"
+        dotnet test --configuration Release --verbosity normal || echo "No test projects found"
+        echo "Tests completed"
       continue-on-error: true
 
   # Code Quality
@@ -267,7 +267,7 @@ jobs:
         echo "Running code analysis..."
         export PATH="$PATH:$HOME/.dotnet/tools"
         dotnet format --verify-no-changes --verbosity normal || echo "⚠️ Code formatting issues found"
-        echo "✅ Code quality check completed"
+        echo "Code quality check completed"
       continue-on-error: true
 
   # Build Docker Images
@@ -359,12 +359,12 @@ jobs:
         echo "Validating Docker Compose configuration..."
         if docker compose version > /dev/null 2>&1; then
           echo "Using modern docker compose"
-          docker compose config && echo "✅ Docker Compose configuration is valid"
+          docker compose config && echo "Docker Compose configuration is valid"
         elif command -v docker-compose > /dev/null 2>&1; then
           echo "Using legacy docker-compose"
-          docker-compose config && echo "✅ Docker Compose configuration is valid"
+          docker-compose config && echo "Docker Compose configuration is valid"
         else
-          echo "❌ Docker Compose not available"
+          echo "Docker Compose not available"
           exit 1
         fi
 
@@ -404,8 +404,8 @@ jobs:
     - name: Deploy to development environment
       run: |
         echo "Deploying to development environment..."
-        echo "🚀 Deployment commands would go here"
-        echo "✅ Successfully deployed to development"
+        echo "Deployment commands would go here"
+        echo "Successfully deployed to development"
 
   # Deploy to Production (manual approval required)
   deploy-production:
@@ -417,8 +417,8 @@ jobs:
     - name: Deploy to production environment
       run: |
         echo "Deploying to production environment..."
-        echo "🚀 Production deployment commands would go here"
-        echo "✅ Successfully deployed to production"
+        echo "Production deployment commands would go here"
+        echo "Successfully deployed to production"
 
   # Cleanup
   cleanup:
@@ -430,4 +430,4 @@ jobs:
     - name: Cleanup temporary files
       run: |
         echo "Cleaning up temporary files..."
-        echo "✅ Cleanup completed"
+        echo "Cleanup completed"
