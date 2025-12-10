@@ -1,26 +1,26 @@
 version: "3.8"
 
 services:
-  # SQL Server Database
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: expensetracker-sqlserver
+  postgres:
+    image: postgres:16-alpine
+    container_name: expensetracker-postgres
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${DB_PASSWORD}
-      - MSSQL_PID=Express
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: expensetracker
     ports:
-      - "${DB_PORT}:1433"
+      - "5433:5432"
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
     networks:
       - expensetracker-network
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q "SELECT 1" || exit 1
-      interval: 30s
-      timeout: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 10s
 
   # Auth Service
   auth-service:
@@ -30,14 +30,14 @@ services:
     container_name: expensetracker-auth
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER},${DB_PORT};Database=${AUTH_DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - ConnectionStrings__AuthDb=Host=${DB_SERVER:-postgres};Port=${DB_PORT:-5432};Database=${AUTH_DB_NAME};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
       - Jwt__Secret=${JWT_SECRET}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
     ports:
-      - "${AUTH_SERVICE_PORT}:80"
+      - "${AUTH_SERVICE_PORT}:8080"
     depends_on:
-      sqlserver:
+      postgres:
         condition: service_healthy
     networks:
       - expensetracker-network
@@ -51,15 +51,15 @@ services:
     container_name: expensetracker-expense
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__ExpenseDb=Server=${DB_SERVER},${DB_PORT};Database=${EXPENSE_DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - ConnectionStrings__ExpenseDb=Host=${DB_SERVER:-postgres};Port=${DB_PORT:-5432};Database=${EXPENSE_DB_NAME};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
       - Jwt__Secret=${JWT_SECRET}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
       - AuthService__BaseUrl=http://auth-service:80
     ports:
-      - "${EXPENSE_SERVICE_PORT}:80"
+      - "${EXPENSE_SERVICE_PORT}:8080"
     depends_on:
-      - sqlserver
+      - postgres
       - auth-service
     networks:
       - expensetracker-network
@@ -73,18 +73,81 @@ services:
     container_name: expensetracker-analytics
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AnalyticsDb=Server=${DB_SERVER},${DB_PORT};Database=${ANALYTICS_DB_NAME};User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - ConnectionStrings__AnalyticsDb=Host=${DB_SERVER:-postgres};Port=${DB_PORT:-5432};Database=${ANALYTICS_DB_NAME};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
       - Jwt__Secret=${JWT_SECRET}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
-      - ExpenseService__BaseUrl=http://expense-service:80
-      - BudgetService__BaseUrl=http://budget-service:80
+      - ExpenseService__BaseUrl=http://expense-service:8080
+      - BudgetService__BaseUrl=http://budget-service:8080
     ports:
-      - "${ANALYTICS_SERVICE_PORT}:80"
+      - "${ANALYTICS_SERVICE_PORT}:8080"
     depends_on:
-      - sqlserver
+      - postgres
       - auth-service
       - expense-service
+    networks:
+      - expensetracker-network
+    restart: unless-stopped
+
+  # Budget Service
+  budget-service:
+    build:
+      context: ./Backend/BudgetService
+      dockerfile: Dockerfile
+    container_name: expensetracker-budget
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__BudgetDb=Host=${DB_SERVER:-postgres};Port=${DB_PORT:-5432};Database=${BUDGET_DB_NAME};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    ports:
+      - "${BUDGET_SERVICE_PORT}:8080"
+    depends_on:
+      - postgres
+      - auth-service
+    networks:
+      - expensetracker-network
+    restart: unless-stopped
+
+  # Category Service
+  category-service:
+    build:
+      context: ./Backend/CategoryService
+      dockerfile: Dockerfile
+    container_name: expensetracker-category
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__CategoryDb=Host=${DB_SERVER:-postgres};Port=${DB_PORT:-5432};Database=${CATEGORY_DB_NAME};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    ports:
+      - "${CATEGORY_SERVICE_PORT}:8080"
+    depends_on:
+      - postgres
+      - auth-service
+    networks:
+      - expensetracker-network
+    restart: unless-stopped
+
+  # Savings Goal Service
+  savings-goal-service:
+    build:
+      context: ./Backend/SavingsGoalService
+      dockerfile: Dockerfile
+    container_name: expensetracker-savingsgoal
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__SavingsGoalDb=Host=${DB_SERVER:-postgres};Port=${DB_PORT:-5432};Database=${SAVINGS_GOAL_DB_NAME};Username=${DB_USER:-postgres};Password=${DB_PASSWORD}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    ports:
+      - "${SAVINGS_GOAL_SERVICE_PORT}:8080"
+    depends_on:
+      - postgres
+      - auth-service
     networks:
       - expensetracker-network
     restart: unless-stopped
@@ -100,13 +163,16 @@ services:
     depends_on:
       - auth-service
       - expense-service
+      - budget-service
+      - category-service
+      - savings-goal-service
       - analytics-service
     networks:
       - expensetracker-network
     restart: unless-stopped
 
 volumes:
-  sqlserver_data:
+  postgres_data:
     driver: local
 
 networks:
