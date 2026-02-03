@@ -35,7 +35,7 @@ try
 
     // Services & repositories
     builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
-    builder.Services.AddScoped<IBudgetService, BudgetService.Services.BudgetService>();
+    builder.Services.AddScoped<IBudgetService, BudgetServiceImpl>();
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
@@ -104,16 +104,16 @@ try
     });
 
     // Add CORS
- builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSwaggerUI", policy =>
-    {
-        policy
-            .WithOrigins("http://localhost:8088")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
+    builder.Services.AddCors(options =>
+   {
+       options.AddPolicy("AllowSwaggerUI", policy =>
+       {
+           policy
+               .WithOrigins("http://localhost:8088")
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+       });
+   });
     // Add health checks
     builder.Services.AddHealthChecks()
         .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());

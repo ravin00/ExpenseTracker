@@ -1,4 +1,5 @@
 using BudgetService.Dtos;
+using BudgetService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,7 +9,7 @@ namespace BudgetService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize] // Require JWT
-    public class BudgetController(Services.BudgetService service) : ControllerBase
+    public class BudgetController(IBudgetService service) : ControllerBase
     {
         private int GetUserId()
         {
