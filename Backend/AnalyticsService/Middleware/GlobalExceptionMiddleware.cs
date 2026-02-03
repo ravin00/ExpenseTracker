@@ -3,26 +3,18 @@ using System.Text.Json;
 
 namespace AnalyticsService.Middleware
 {
-    public class GlobalExceptionMiddleware
+    public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<GlobalExceptionMiddleware> _logger;
-
-        public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
-        {
-            _next = next;
-            _logger = logger;
-        }
-
+        // ReSharper disable once UnusedMember.Global
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                await _next(context);
+                await next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unhandled exception occurred");
+                logger.LogError(ex, "An unhandled exception occurred");
                 await HandleExceptionAsync(context, ex);
             }
         }
@@ -31,32 +23,39 @@ namespace AnalyticsService.Middleware
         {
             context.Response.ContentType = "application/json";
 
-            object response = new
-            {
-                Message = "An error occurred while processing your request",
-                Details = exception.GetType().Name
-            };
+            var message = "An error occurred while processing your request";
+            var details = exception.GetType().Name;
+
+            // object response = new
+            // {
+            //     Message = "An error occurred while processing your request",
+            //     Details = exception.GetType().Name
+            // };
 
             switch (exception)
             {
                 case ArgumentException:
                 case InvalidOperationException:
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    response = new { Message = exception.Message, Details = "BadRequest" };
+                    message = exception.Message;
+                    details = "BadRequest";
                     break;
                 case UnauthorizedAccessException:
                     context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    response = new { Message = "Unauthorized access", Details = "Unauthorized" };
+                    message = "Unauthorized access";
+                    details = "Unauthorized";
                     break;
                 case KeyNotFoundException:
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    response = new { Message = "Resource not found", Details = "NotFound" };
+                    message = "Resouce not found";
+                    details = "NotFound";
                     break;
                 default:
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
             }
 
+            var response = new { message,details };
             var jsonResponse = JsonSerializer.Serialize(response);
             await context.Response.WriteAsync(jsonResponse);
         }

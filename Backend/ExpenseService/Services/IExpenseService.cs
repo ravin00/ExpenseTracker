@@ -8,7 +8,7 @@ namespace ExpenseService.Services
     {
         Task<List<Expense>> GetExpensesAsync(int userId);
         Task<Expense?> GetExpenseAsync(int id, int userId);
-        Task<ExpenseCreatedEvent> AddExpenseAsync(int userId, ExpenseDto dto);
+        Task<ExpenseCreatedEvent> AddExpenseAsync(int userId, ExpenseCreateDto dto);
         Task UpdateExpenseAsync(Expense expense);
         Task DeleteExpenseAsync(Expense expense);
     }

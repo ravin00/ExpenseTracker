@@ -8,31 +8,22 @@ namespace CategoryService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize] // Require JWT
-    public class CategoryController : ControllerBase
+    public class CategoryController(Services.CategoryService service) : ControllerBase
     {
-        private readonly Services.CategoryService _service;
-
-        public CategoryController(Services.CategoryService service)
-        {
-            _service = service;
-        }
 
         private int GetUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            // return userIdClaim != null ? int.Parse(userIdClaim) : throw new UnauthorizedAccessException("User ID not found in token");
-            if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
-            {
-                return userId;
-            }
-            throw new UnauthorizedAccessException("User ID not found or invalid in token");
+            return userIdClaim != null ? int.Parse(userIdClaim) : throw new UnauthorizedAccessException("User ID not found in token");
         }
+ 
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             try
             {
-                var categories = await _service.GetCategoriesAsync(GetUserId());
+                var categories = await service.GetCategoriesAsync(GetUserId());
                 return Ok(categories);
             }
             catch (Exception ex)
@@ -46,7 +37,7 @@ namespace CategoryService.Controllers
         {
             try
             {
-                var category = await _service.GetCategoryAsync(id, GetUserId());
+                var category = await service.GetCategoryAsync(id, GetUserId());
                 if (category == null) return NotFound(new { message = $"Category with ID {id} not found" });
                 return Ok(category);
             }
@@ -66,7 +57,7 @@ namespace CategoryService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var category = await _service.CreateCategoryAsync(GetUserId(), dto);
+                var category = await service.CreateCategoryAsync(GetUserId(), dto);
                 return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
             }
             catch (InvalidOperationException ex)
@@ -89,7 +80,7 @@ namespace CategoryService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var category = await _service.UpdateCategoryAsync(id, GetUserId(), dto);
+                var category = await service.UpdateCategoryAsync(id, GetUserId(), dto);
                 return Ok(category);
             }
             catch (KeyNotFoundException ex)
@@ -111,7 +102,7 @@ namespace CategoryService.Controllers
         {
             try
             {
-                await _service.DeleteCategoryAsync(id, GetUserId());
+                await service.DeleteCategoryAsync(id, GetUserId());
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

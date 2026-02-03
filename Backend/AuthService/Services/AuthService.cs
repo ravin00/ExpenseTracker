@@ -49,6 +49,11 @@ namespace AuthService.Services
             return user;
         }
 
+        public async Task<User?> GetUserByIdAsync(int id)
+        {
+            return await _userRepository.GetByIdAsync(id);
+        }
+
         public async Task<User?> AuthenticateAsync(LoginUserDto dto)
         {
             _logger.LogInformation("Authentication attempt for email: {Email}", dto.Email);

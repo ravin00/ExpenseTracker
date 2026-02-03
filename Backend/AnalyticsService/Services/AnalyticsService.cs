@@ -20,7 +20,7 @@ namespace AnalyticsService.Services
             if (userId <= 0)
                 throw new ArgumentException("Invalid user ID", nameof(userId));
 
-            return period.HasValue 
+            return period.HasValue
                 ? await _repository.GetByPeriodAsync(userId, period.Value)
                 : await _repository.GetAllAsync(userId);
         }
@@ -144,7 +144,7 @@ namespace AnalyticsService.Services
                 throw new ArgumentException("Start date cannot be after end date");
 
             var summary = await _repository.GetFinancialSummaryAsync(userId, startDate, endDate);
-            
+
             return new FinancialSummaryDto
             {
                 TotalIncome = summary.TotalIncome,
@@ -192,7 +192,7 @@ namespace AnalyticsService.Services
             var summary = await GetFinancialSummaryAsync(userId, startOfMonth, endOfMonth);
             var categoryBreakdown = await GetExpensesByCategoryAsync(userId, startOfMonth, endOfMonth);
             var monthlyTrends = await GetSpendingTrendsAsync(userId, AnalyticsPeriod.Monthly, 12);
-            
+
             // Calculate monthly average from trends
             var monthlyAverage = monthlyTrends.Count > 0 ? monthlyTrends.Average(t => t.Amount) : 0;
             var yearlyProjection = monthlyAverage * 12;
@@ -215,7 +215,7 @@ namespace AnalyticsService.Services
                 throw new ArgumentException("Invalid user ID", nameof(userId));
 
             var categories = await _repository.GetExpensesByCategoryAsync(userId, startDate, endDate);
-            
+
             return categories.Select(c => new ExpenseByCategoryDto
             {
                 CategoryId = c.CategoryId,
@@ -232,7 +232,7 @@ namespace AnalyticsService.Services
                 throw new ArgumentException("Invalid user ID", nameof(userId));
 
             var trends = await _repository.GetSpendingTrendsAsync(userId, period, months);
-            
+
             return trends.Select(t => new SpendingTrendDto
             {
                 Date = t.Date,
@@ -241,7 +241,7 @@ namespace AnalyticsService.Services
             }).ToList();
         }
 
-        public async Task<Analytics> GenerateAnalyticsAsync(int userId, DateTime date, AnalyticsPeriod period)
+        public async Task<Analytics> GenerateAnalyticsAsync(int userId, DateTime date, AnalyticsPeriod period, int? categoryId = null)
         {
             if (userId <= 0)
                 throw new ArgumentException("Invalid user ID", nameof(userId));
@@ -286,13 +286,13 @@ namespace AnalyticsService.Services
         {
             if (totalExpenses > totalIncome)
                 return "Poor";
-            
+
             if (savingsRate >= 20)
                 return "Excellent";
-            
+
             if (savingsRate >= 10)
                 return "Good";
-            
+
             return "Fair";
         }
 
@@ -300,13 +300,13 @@ namespace AnalyticsService.Services
         {
             if (summary.TotalExpenses > summary.TotalIncome)
                 return "Your expenses exceed your income. Consider reducing spending in high-cost categories.";
-            
+
             if (summary.SavingsRate < 10)
                 return "Try to increase your savings rate to at least 10% of your income for better financial health.";
-            
+
             if (summary.SavingsRate >= 20)
                 return "Excellent savings rate! Keep up the good financial habits.";
-            
+
             return "Good financial management. Consider increasing your savings rate for even better financial security.";
         }
     }

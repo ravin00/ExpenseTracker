@@ -9,17 +9,10 @@ namespace AnalyticsService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize] // Require JWT
-    public class AnalyticsController : ControllerBase
+    public class AnalyticsController(
+        Services.IAnalyticsService service,
+        ILogger<AnalyticsController> logger) : ControllerBase
     {
-        private readonly Services.IAnalyticsService _service;
-        private readonly ILogger<AnalyticsController> _logger;
-
-        public AnalyticsController(Services.IAnalyticsService service, ILogger<AnalyticsController> logger)
-        {
-            _service = service;
-            _logger = logger;
-        }
-
         private int GetUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -29,14 +22,16 @@ namespace AnalyticsService.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] AnalyticsPeriod? period = null)
         {
+
+            var userId = GetUserId();
             try
             {
-                var analytics = await _service.GetAnalyticsAsync(GetUserId(), period);
+                var analytics = await service.GetAnalyticsAsync(userId, period);
                 return Ok(analytics);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving analytics for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error retrieving analytics for user {UserId}", userId);
                 return StatusCode(500, new { message = "An error occurred while retrieving analytics", error = ex.Message });
             }
         }
@@ -46,15 +41,15 @@ namespace AnalyticsService.Controllers
         {
             try
             {
-                var analytics = await _service.GetAnalyticsAsync(id, GetUserId());
-                if (analytics == null) 
+                var analytics = await service.GetAnalyticsAsync(id, GetUserId());
+                if (analytics == null)
                     return NotFound(new { message = $"Analytics with ID {id} not found" });
-                
+
                 return Ok(analytics);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving analytics {AnalyticsId} for user {UserId}", id, GetUserId());
+                logger.LogError(ex, "Error retrieving analytics {AnalyticsId} for user {UserId}", id, GetUserId());
                 return StatusCode(500, new { message = "An error occurred while retrieving the analytics", error = ex.Message });
             }
         }
@@ -67,12 +62,12 @@ namespace AnalyticsService.Controllers
                 if (startDate > endDate)
                     return BadRequest(new { message = "Start date cannot be after end date" });
 
-                var analytics = await _service.GetAnalyticsByDateRangeAsync(GetUserId(), startDate, endDate);
+                var analytics = await service.GetAnalyticsByDateRangeAsync(GetUserId(), startDate, endDate);
                 return Ok(analytics);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving analytics for date range for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error retrieving analytics for date range for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while retrieving analytics", error = ex.Message });
             }
         }
@@ -82,12 +77,12 @@ namespace AnalyticsService.Controllers
         {
             try
             {
-                var dashboard = await _service.GetDashboardDataAsync(GetUserId());
+                var dashboard = await service.GetDashboardDataAsync(GetUserId());
                 return Ok(dashboard);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving dashboard data for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error retrieving dashboard data for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while retrieving dashboard data", error = ex.Message });
             }
         }
@@ -100,12 +95,12 @@ namespace AnalyticsService.Controllers
                 if (startDate > endDate)
                     return BadRequest(new { message = "Start date cannot be after end date" });
 
-                var summary = await _service.GetFinancialSummaryAsync(GetUserId(), startDate, endDate);
+                var summary = await service.GetFinancialSummaryAsync(GetUserId(), startDate, endDate);
                 return Ok(summary);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving financial summary for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error retrieving financial summary for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while retrieving financial summary", error = ex.Message });
             }
         }
@@ -118,12 +113,12 @@ namespace AnalyticsService.Controllers
                 if (startDate > endDate)
                     return BadRequest(new { message = "Start date cannot be after end date" });
 
-                var categories = await _service.GetExpensesByCategoryAsync(GetUserId(), startDate, endDate);
+                var categories = await service.GetExpensesByCategoryAsync(GetUserId(), startDate, endDate);
                 return Ok(categories);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving expenses by category for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error retrieving expenses by category for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while retrieving category expenses", error = ex.Message });
             }
         }
@@ -136,12 +131,12 @@ namespace AnalyticsService.Controllers
                 if (months <= 0 || months > 60)
                     return BadRequest(new { message = "Months must be between 1 and 60" });
 
-                var trends = await _service.GetSpendingTrendsAsync(GetUserId(), period, months);
+                var trends = await service.GetSpendingTrendsAsync(GetUserId(), period, months);
                 return Ok(trends);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving spending trends for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error retrieving spending trends for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while retrieving spending trends", error = ex.Message });
             }
         }
@@ -154,7 +149,7 @@ namespace AnalyticsService.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var analytics = await _service.CreateAnalyticsAsync(GetUserId(), dto);
+                var analytics = await service.CreateAnalyticsAsync(GetUserId(), dto);
                 return CreatedAtAction(nameof(GetById), new { id = analytics.Id }, analytics);
             }
             catch (InvalidOperationException ex)
@@ -167,7 +162,7 @@ namespace AnalyticsService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating analytics for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error creating analytics for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while creating analytics", error = ex.Message });
             }
         }
@@ -180,7 +175,7 @@ namespace AnalyticsService.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var analytics = await _service.UpdateAnalyticsAsync(id, GetUserId(), dto);
+                var analytics = await service.UpdateAnalyticsAsync(id, GetUserId(), dto);
                 return Ok(analytics);
             }
             catch (KeyNotFoundException ex)
@@ -197,7 +192,7 @@ namespace AnalyticsService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating analytics {AnalyticsId} for user {UserId}", id, GetUserId());
+                logger.LogError(ex, "Error updating analytics {AnalyticsId} for user {UserId}", id, GetUserId());
                 return StatusCode(500, new { message = "An error occurred while updating analytics", error = ex.Message });
             }
         }
@@ -207,7 +202,7 @@ namespace AnalyticsService.Controllers
         {
             try
             {
-                await _service.DeleteAnalyticsAsync(id, GetUserId());
+                await service.DeleteAnalyticsAsync(id, GetUserId());
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -216,7 +211,7 @@ namespace AnalyticsService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting analytics {AnalyticsId} for user {UserId}", id, GetUserId());
+                logger.LogError(ex, "Error deleting analytics {AnalyticsId} for user {UserId}", id, GetUserId());
                 return StatusCode(500, new { message = "An error occurred while deleting analytics", error = ex.Message });
             }
         }
@@ -226,49 +221,66 @@ namespace AnalyticsService.Controllers
         {
             try
             {
-                var date = request.StartDate ?? DateTime.UtcNow.Date;
+                var startDate = request.StartDate ?? DateTime.UtcNow.Date;
+                var endDate = request.EndDate ?? startDate;
                 var period = request.Period;
+                var categoryId = request.CategoryId;
 
-                if (await _service.AnalyticsExistsAsync(GetUserId(), date, period))
-                    return Conflict(new { message = $"Analytics already exists for {date:yyyy-MM-dd} with period {period}" });
+                if (startDate > endDate)
+                    return BadRequest(new { message = "Start date cannot be after end date" });
 
-                var analytics = await _service.GenerateAnalyticsAsync(GetUserId(), date, period);
+                if (await service.AnalyticsExistsAsync(GetUserId(), startDate, period))
+                    return Conflict(new { message = $"Analytics already exists for {startDate:yyyy-MM-dd} with period {period}" });
+
+                // Pass categoryId to filter analytics by category if provided
+                var analytics = await service.GenerateAnalyticsAsync(GetUserId(), startDate, period, categoryId);
                 return CreatedAtAction(nameof(GetById), new { id = analytics.Id }, analytics);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating analytics for user {UserId}", GetUserId());
+                logger.LogError(ex, "Error generating analytics for user {UserId}", GetUserId());
                 return StatusCode(500, new { message = "An error occurred while generating analytics", error = ex.Message });
             }
         }
 
         [HttpGet("health-status")]
-        public async Task<IActionResult> GetHealthStatus()
+public async Task<IActionResult> GetHealthStatus()
+{
+    var userId = GetUserId();
+    try
+    {
+        var currentMonth = DateTime.UtcNow.Date;
+        var startOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
+        var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+        var summary = await service.GetFinancialSummaryAsync(userId, startOfMonth, endOfMonth);
+
+        // Use the service methods
+        var savingsRate = service.CalculateSavingsRate(summary.TotalIncome, summary.TotalSavings);
+        var healthStatus = service.GetFinancialHealthStatus(summary.TotalIncome, summary.TotalExpenses, savingsRate);
+
+        var result = new
         {
-            try
+            OverallHealth = healthStatus,
+            SavingsRate = savingsRate,
+            summary.TotalIncome,
+            summary.TotalExpenses,
+            summary.NetWorth,
+            Recommendation = service.GenerateRecommendation(new FinancialSummaryDto
             {
-                var currentMonth = DateTime.UtcNow.Date;
-                var startOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
-                var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+                TotalIncome = summary.TotalIncome,
+                TotalExpenses = summary.TotalExpenses,
+                TotalSavings = summary.TotalSavings
+            })
+        };
 
-                var summary = await _service.GetFinancialSummaryAsync(GetUserId(), startOfMonth, endOfMonth);
-                
-                var healthStatus = new
-                {
-                    OverallHealth = summary.FinancialHealth,
-                    SavingsRate = summary.SavingsRate,
-                    NetWorth = summary.NetWorth,
-                    IsOverspending = summary.TotalExpenses > summary.TotalIncome,
-                    Recommendation = _service.GenerateRecommendation(summary)
-                };
-
-                return Ok(healthStatus);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving health status for user {UserId}", GetUserId());
-                return StatusCode(500, new { message = "An error occurred while retrieving health status", error = ex.Message });
-            }
-        }
+        return Ok(result);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error retrieving health status for user {UserId}", userId);
+        return StatusCode(500, new { message = "An error occurred while retrieving health status", error = ex.Message });
+    }
+}
     }
 }

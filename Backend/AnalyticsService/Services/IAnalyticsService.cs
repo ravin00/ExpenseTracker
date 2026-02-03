@@ -15,7 +15,7 @@ namespace AnalyticsService.Services
         Task<DashboardDto> GetDashboardDataAsync(int userId);
         Task<List<ExpenseByCategoryDto>> GetExpensesByCategoryAsync(int userId, DateTime startDate, DateTime endDate);
         Task<List<SpendingTrendDto>> GetSpendingTrendsAsync(int userId, AnalyticsPeriod period, int months = 12);
-        Task<Analytics> GenerateAnalyticsAsync(int userId, DateTime date, AnalyticsPeriod period);
+        Task<Analytics> GenerateAnalyticsAsync(int userId, DateTime date, AnalyticsPeriod period, int? categoryId = null);
         Task<bool> AnalyticsExistsAsync(int userId, DateTime date, AnalyticsPeriod period);
         decimal CalculateSavingsRate(decimal totalIncome, decimal totalSavings);
         string GetFinancialHealthStatus(decimal totalIncome, decimal totalExpenses, decimal savingsRate);

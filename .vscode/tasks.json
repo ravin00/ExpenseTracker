@@ -1,0 +1,149 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run All Services",
+      "dependsOn": [
+        "Run AuthService",
+        "Run ExpenseService",
+        "Run CategoryService",
+        "Run BudgetService",
+        "Run SavingsGoalService",
+        "Run AnalyticsService"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Run AuthService",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Backend/AuthService"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$"
+        }
+      }
+    },
+    {
+      "label": "Run ExpenseService",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Backend/ExpenseService"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$"
+        }
+      }
+    },
+    {
+      "label": "Run CategoryService",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Backend/CategoryService"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$"
+        }
+      }
+    },
+    {
+      "label": "Run BudgetService",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Backend/BudgetService"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$"
+        }
+      }
+    },
+    {
+      "label": "Run SavingsGoalService",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Backend/SavingsGoalService"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$"
+        }
+      }
+    },
+    {
+      "label": "Run AnalyticsService",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Backend/AnalyticsService"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Building.*$",
+          "endsPattern": "^.*Application started.*$"
+        }
+      }
+    }
+  ]
+}

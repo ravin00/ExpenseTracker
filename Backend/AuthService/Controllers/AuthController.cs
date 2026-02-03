@@ -1,25 +1,18 @@
 using AuthService.Dtos;
 using AuthService.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+// using System.ComponentModel.DataAnnotations;
 
 namespace AuthService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(
+        Services.AuthService authService,
+        JwtHelper jwtHelper,
+        ILogger<AuthController> logger) : ControllerBase
     {
-        private readonly Services.AuthService _authService;
-        private readonly JwtHelper _jwtHelper;
-        private readonly ILogger<AuthController> _logger;
-
-        public AuthController(Services.AuthService authService, JwtHelper jwtHelper, ILogger<AuthController> logger)
-        {
-            _authService = authService;
-            _jwtHelper = jwtHelper;
-            _logger = logger;
-        }
-
         /// <summary>
         /// Register a new user
         /// </summary>
@@ -35,11 +28,11 @@ namespace AuthService.Controllers
 
             try
             {
-                var user = await _authService.RegisterAsync(dto);
-                _logger.LogInformation("User {UserId} registered successfully", user.Id);
+                var user = await authService.RegisterAsync(dto);
+                logger.LogInformation("User {UserId} registered successfully", user.Id);
 
                 return CreatedAtAction(
-                    nameof(GetUserProfile),
+                    nameof(GetProfile),
                     new { id = user.Id },
                     new
                     {
@@ -51,7 +44,7 @@ namespace AuthService.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                _logger.LogWarning("Registration failed: {Message}", ex.Message);
+                logger.LogWarning("Registration failed: {Message}", ex.Message);
                 return Conflict(new { Message = ex.Message });
             }
         }
@@ -69,15 +62,15 @@ namespace AuthService.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _authService.AuthenticateAsync(dto);
+            var user = await authService.AuthenticateAsync(dto);
             if (user == null)
             {
-                _logger.LogWarning("Failed login attempt for email: {Email}", dto.Email);
+                logger.LogWarning("Failed login attempt for email: {Email}", dto.Email);
                 return Unauthorized(new { Message = "Invalid email or password" });
             }
 
-            var token = _jwtHelper.GenerateToken(user);
-            _logger.LogInformation("User {UserId} logged in successfully", user.Id);
+            var token = jwtHelper.GenerateToken(user);
+            logger.LogInformation("User {UserId} logged in successfully", user.Id);
 
             return Ok(new
             {
@@ -98,10 +91,31 @@ namespace AuthService.Controllers
         /// <param name="id">User ID</param>
         /// <returns>User profile</returns>
         [HttpGet("profile/{id}")]
-        public IActionResult GetUserProfile(int id)
+        [Authorize]
+        public async Task<IActionResult> GetProfile(int id)
         {
-            // Placeholder for future implementation
-            return Ok(new { Message = "Profile endpoint - not implemented yet" });
+            try
+            {
+                var user = await authService.GetUserByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                return Ok(new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    createdAt = user.CreatedAt,
+                    updatedAt = user.UpdatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error retrieving profile", error = ex.Message });
+            }
         }
 
         /// <summary>

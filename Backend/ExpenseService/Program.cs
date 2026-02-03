@@ -35,7 +35,7 @@ try
 
     // Services & repos
     builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
-    builder.Services.AddScoped<IExpenseService, ExpenseService.Services.ExpenseService>();
+    builder.Services.AddScoped<IExpenseService, ExpenseServiceImpl>();
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
@@ -99,20 +99,42 @@ try
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = false,
             ValidateAudience = false,
+            ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Log.Error($"Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Log.Information("Token validated successfully");
+                return Task.CompletedTask;
+            },
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Headers["Authorization"].FirstOrDefault();
+                Log.Information($"Token received: {(string.IsNullOrEmpty(token) ? "None" : "Present")}");
+                return Task.CompletedTask;
+            }
         };
     });
 
     // Add CORS
-    builder.Services.AddCors(options =>
+   builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSwaggerUI", policy =>
     {
-        options.AddPolicy("AllowAll", policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+        policy
+            .WithOrigins("http://localhost:8088")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
+});
 
     // Add health checks
     builder.Services.AddHealthChecks()
@@ -122,6 +144,7 @@ try
 
     // Configure middleware pipeline
     app.UseMiddleware<GlobalExceptionMiddleware>();
+    app.UseCors("AllowSwaggerUI");
 
     if (app.Environment.IsDevelopment())
     {
@@ -133,7 +156,6 @@ try
         });
     }
 
-    app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseHttpMetrics();

@@ -104,15 +104,16 @@ try
     });
 
     // Add CORS
-    builder.Services.AddCors(options =>
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSwaggerUI", policy =>
     {
-        options.AddPolicy("AllowAll", policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+        policy
+            .WithOrigins("http://localhost:8088")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
+});
 
     // Add health checks
     builder.Services.AddHealthChecks()
@@ -122,6 +123,7 @@ try
 
     // Configure middleware pipeline
     app.UseMiddleware<GlobalExceptionMiddleware>();
+    app.UseCors("AllowSwaggerUI");
 
     if (app.Environment.IsDevelopment())
     {
@@ -133,7 +135,6 @@ try
         });
     }
 
-    app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseHttpMetrics();

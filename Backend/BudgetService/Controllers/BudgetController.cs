@@ -8,15 +8,8 @@ namespace BudgetService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize] // Require JWT
-    public class BudgetController : ControllerBase
+    public class BudgetController(Services.BudgetService service) : ControllerBase
     {
-        private readonly Services.BudgetService _service;
-
-        public BudgetController(Services.BudgetService service)
-        {
-            _service = service;
-        }
-
         private int GetUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -28,7 +21,7 @@ namespace BudgetService.Controllers
         {
             try
             {
-                var budgets = await _service.GetBudgetsAsync(GetUserId(), activeOnly);
+                var budgets = await service.GetBudgetsAsync(GetUserId(), activeOnly);
                 return Ok(budgets);
             }
             catch (Exception ex)
@@ -42,17 +35,17 @@ namespace BudgetService.Controllers
         {
             try
             {
-                var budget = await _service.GetBudgetAsync(id, GetUserId());
+                var budget = await service.GetBudgetAsync(id, GetUserId());
                 if (budget == null) return NotFound(new { message = $"Budget with ID {id} not found" });
-                
+
                 var result = new
                 {
                     budget,
-                    progress = _service.GetBudgetProgress(budget),
-                    remaining = _service.GetRemainingAmount(budget),
-                    isExceeded = _service.IsBudgetExceeded(budget)
+                    progress = service.GetBudgetProgress(budget),
+                    remaining = service.GetRemainingAmount(budget),
+                    isExceeded = service.IsBudgetExceeded(budget)
                 };
-                
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -66,7 +59,7 @@ namespace BudgetService.Controllers
         {
             try
             {
-                var budgets = await _service.GetBudgetsByCategoryAsync(categoryId, GetUserId());
+                var budgets = await service.GetBudgetsByCategoryAsync(categoryId, GetUserId());
                 return Ok(budgets);
             }
             catch (Exception ex)
@@ -85,7 +78,7 @@ namespace BudgetService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var budget = await _service.CreateBudgetAsync(GetUserId(), dto);
+                var budget = await service.CreateBudgetAsync(GetUserId(), dto);
                 return CreatedAtAction(nameof(GetById), new { id = budget.Id }, budget);
             }
             catch (InvalidOperationException ex)
@@ -112,7 +105,7 @@ namespace BudgetService.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var budget = await _service.UpdateBudgetAsync(id, GetUserId(), dto);
+                var budget = await service.UpdateBudgetAsync(id, GetUserId(), dto);
                 return Ok(budget);
             }
             catch (KeyNotFoundException ex)
@@ -143,7 +136,7 @@ namespace BudgetService.Controllers
                     return BadRequest(new { message = "Spent amount cannot be negative" });
                 }
 
-                await _service.UpdateSpentAmountAsync(id, spentAmount, GetUserId());
+                await service.UpdateSpentAmountAsync(id, spentAmount, GetUserId());
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -161,7 +154,7 @@ namespace BudgetService.Controllers
         {
             try
             {
-                await _service.DeleteBudgetAsync(id, GetUserId());
+                await service.DeleteBudgetAsync(id, GetUserId());
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

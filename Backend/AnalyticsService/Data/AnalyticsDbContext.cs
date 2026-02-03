@@ -3,9 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnalyticsService.Data
 {
-    public class AnalyticsDbContext : DbContext
+    public class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> options) : DbContext(options)
     {
-        public AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> options) : base(options) { }
 
         public DbSet<Analytics> Analytics { get; set; }
 
@@ -23,7 +22,7 @@ namespace AnalyticsService.Data
                 entity.Property(e => e.CategoryAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Period).HasConversion<string>();
                 entity.Property(e => e.CategoryName).HasMaxLength(100);
-                
+
                 // Indexes for better query performance
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => new { e.UserId, e.Date });
