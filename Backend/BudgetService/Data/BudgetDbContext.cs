@@ -21,6 +21,13 @@ namespace BudgetService.Data
                 entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.SpentAmount).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Period).HasConversion<string>();
+                
+                // Configure DateTime properties for UTC
+                entity.Property(e => e.StartDate).HasColumnType("timestamp with time zone");
+                entity.Property(e => e.EndDate).HasColumnType("timestamp with time zone");
+                entity.Property(e => e.CreatedAt).HasColumnType("timestamp with time zone");
+                entity.Property(e => e.UpdatedAt).HasColumnType("timestamp with time zone");
+                
                 entity.HasIndex(e => new { e.UserId, e.Name }).IsUnique();
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => new { e.UserId, e.CategoryId });

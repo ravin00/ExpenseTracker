@@ -52,8 +52,8 @@ namespace BudgetService.Services
                 Amount = dto.Amount,
                 CategoryId = dto.CategoryId,
                 Period = dto.Period,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
+                StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc),
+                EndDate = dto.EndDate.HasValue ? DateTime.SpecifyKind(dto.EndDate.Value, DateTimeKind.Utc) : null,
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -87,8 +87,8 @@ namespace BudgetService.Services
             budget.Amount = dto.Amount;
             budget.CategoryId = dto.CategoryId;
             budget.Period = dto.Period;
-            budget.StartDate = dto.StartDate;
-            budget.EndDate = dto.EndDate;
+            budget.StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc);
+            budget.EndDate = dto.EndDate.HasValue ? DateTime.SpecifyKind(dto.EndDate.Value, DateTimeKind.Utc) : null;
             budget.IsActive = dto.IsActive;
 
             await _repository.UpdateAsync(budget);
