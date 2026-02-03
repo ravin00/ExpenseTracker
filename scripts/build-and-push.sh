@@ -10,7 +10,7 @@ REGISTRY=${1:-"docker.io/your-username"}
 TAG=${2:-"latest"}
 GIT_COMMIT=$(git rev-parse --short HEAD)
 
-echo "🚀 Building and pushing ExpenseTracker images..."
+echo "Building and pushing ExpenseTracker images..."
 echo "Registry: $REGISTRY"
 echo "Tag: $TAG"
 echo "Git Commit: $GIT_COMMIT"
@@ -20,7 +20,7 @@ SERVICES=("auth-service" "expense-service" "category-service" "budget-service" "
 
 # Build and push each service
 for service in "${SERVICES[@]}"; do
-    echo "📦 Building $service..."
+    echo "Building $service..."
     
     # Convert service name to directory name
     case $service in
@@ -35,16 +35,16 @@ for service in "${SERVICES[@]}"; do
     # Build the image
     docker build -t "$REGISTRY/$service:$TAG" -t "$REGISTRY/$service:$GIT_COMMIT" "Backend/$dir"
     
-    echo "🚢 Pushing $service..."
+    echo "Pushing $service..."
     docker push "$REGISTRY/$service:$TAG"
     docker push "$REGISTRY/$service:$GIT_COMMIT"
     
-    echo "✅ $service pushed successfully!"
+    echo "$service pushed successfully!"
 done
 
-echo "🎉 All images built and pushed successfully!"
+echo "All images built and pushed successfully!"
 echo ""
-echo "📋 To deploy with ArgoCD, update your Kubernetes manifests to use:"
+echo "To deploy with ArgoCD, update your Kubernetes manifests to use:"
 echo "   Image: $REGISTRY/[service-name]:$TAG"
 echo ""
-echo "🔄 ArgoCD will automatically sync from your Git repository."
+echo "ArgoCD will automatically sync from your Git repository."

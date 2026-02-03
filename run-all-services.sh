@@ -2,7 +2,7 @@
 
 # Run all ExpenseTracker services concurrently
 
-echo "🧹 Cleaning up existing processes..."
+echo "Cleaning up existing processes..."
 
 # Kill any existing processes on the ports
 lsof -ti:5048 | xargs kill -9 2>/dev/null || true
@@ -14,7 +14,7 @@ lsof -ti:5090 | xargs kill -9 2>/dev/null || true
 
 sleep 2
 
-echo "🚀 Starting all ExpenseTracker services..."
+echo "Starting all ExpenseTracker services..."
 
 # Get the base directory
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -38,9 +38,9 @@ SAVINGS_PID=$!
 (cd "$BASE_DIR/Backend/AnalyticsService" && dotnet run) &
 ANALYTICS_PID=$!
 
-echo "✅ All services started!"
+echo "All services started!"
 echo ""
-echo "📚 Swagger URLs:"
+echo "Swagger URLs:"
 echo "   Auth Service:         http://localhost:5048/swagger"
 echo "   Category Service:     http://localhost:5003/swagger"
 echo "   Budget Service:       http://localhost:5004/swagger"
