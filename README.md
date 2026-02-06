@@ -1,64 +1,61 @@
-# ExpenseTracker
+# SpendWise
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-blue)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
 
-A modern, microservices-based expense tracking application built with .NET 9.0, featuring robust authentication, comprehensive expense management, and advanced analytics capabilities.
+A modern, microservices-based personal finance platform built with .NET 9.0, featuring robust authentication, comprehensive expense management, and advanced analytics capabilities.
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Quick Start](#-quick-start)
-- [API Documentation](#-api-documentation)
-- [Development](#-development)
-- [Deployment](#-deployment)
-- [Documentation](#-documentation)
-- [Contributing](#-contributing)
-- [Troubleshooting](#-troubleshooting)
-- [License](#-license)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [API Documentation](#api-documentation)
+- [Development](#development)
+- [Deployment](#deployment)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
 
-## ✨ Features
+## Features
 
 ### Core Functionality
-- 🔐 **Secure Authentication** - JWT-based authentication with role management
-- 💰 **Expense Management** - Full CRUD operations for expense tracking
-- 📊 **Analytics & Reporting** - Comprehensive financial insights and trends
-- 💳 **Budget Management** - Budget creation, tracking, and alerts
-- 📱 **RESTful APIs** - Well-documented, scalable REST endpoints
-- 🐳 **Containerized** - Docker-ready for easy deployment
+
+- **User Authentication**: Secure registration and login with JWT.
+- **Expense Management**: Create, read, update, and delete expenses.
+- **Budgeting**: Set budgets and track spending against them.
+- **Analytics**: Visual dashboards and financial health summaries.
 
 ### Technical Features
-- 🏗️ **Microservices Architecture** - Loosely coupled, independently deployable services
-- 🔒 **Secure by Design** - JWT authentication, input validation, SQL injection protection
-- 📈 **Scalable** - Horizontal scaling support with load balancing
-- 🔍 **Observable** - Comprehensive logging and health checks
-- 🧪 **Well-Tested** - Unit tests with high coverage
-- 📖 **API Documentation** - Interactive Swagger/OpenAPI documentation
 
-## 🏗️ Architecture
+- **Microservices Architecture**: Decoupled services for scalability.
+- **API Gateway**: Centralized entry point using Nginx.
+- **Containerization**: Fully dockerized for easy deployment.
+- **Modern Stack**: Built with .NET 9.0 and SQL Server.
+
+## Architecture
 
 ```mermaid
 graph TB
     Client[Client Application] --> Gateway[API Gateway<br/>Nginx:8080]
-    
+
     Gateway --> Auth[Auth Service<br/>:5001]
     Gateway --> Expense[Expense Service<br/>:5002]
     Gateway --> Budget[Budget Service<br/>:5003]
     Gateway --> Analytics[Analytics Service<br/>:5004]
-    
+
     Auth --> AuthDB[(Auth Database)]
     Expense --> ExpenseDB[(Expense Database)]
     Budget --> BudgetDB[(Budget Database)]
     Analytics --> AnalyticsDB[(Analytics Database)]
-    
+
     AuthDB --> SQL[SQL Server<br/>:1433]
     ExpenseDB --> SQL
     BudgetDB --> SQL
     AnalyticsDB --> SQL
-    
+
     style Client fill:#e1f5fe
     style Gateway fill:#f3e5f5
     style SQL fill:#fff3e0
@@ -66,41 +63,44 @@ graph TB
 
 ### Service Overview
 
-| Service | Port | Responsibility | Database |
-|---------|------|----------------|----------|
-| **API Gateway** | 8080 | Request routing, load balancing | - |
-| **Auth Service** | 5001 | Authentication, user management | ExpenseTrackerAuth |
-| **Expense Service** | 5002 | Expense CRUD operations | ExpenseTrackerExpenses |
-| **Budget Service** | 5003 | Budget management, alerts | ExpenseTrackerBudgets |
-| **Analytics Service** | 5004 | Financial analytics, reporting | ExpenseTrackerAnalytics |
-| **SQL Server** | 1433 | Database server | Multiple databases |
+| Service               | Port | Responsibility                  | Database                |
+| --------------------- | ---- | ------------------------------- | ----------------------- |
+| **API Gateway**       | 8080 | Request routing, load balancing | -                       |
+| **Auth Service**      | 5001 | Authentication, user management | ExpenseTrackerAuth      |
+| **Expense Service**   | 5002 | Expense CRUD operations         | ExpenseTrackerExpenses  |
+| **Budget Service**    | 5003 | Budget management, alerts       | ExpenseTrackerBudgets   |
+| **Analytics Service** | 5004 | Financial analytics, reporting  | ExpenseTrackerAnalytics |
+| **SQL Server**        | 1433 | Database server                 | Multiple databases      |
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) (v20.10+)
-- [Docker Compose](https://docs.docker.com/compose/install/) (v2.0+)
-- [Git](https://git-scm.com/downloads)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Git](https://git-scm.com/)
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (optional, for local dev)
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/ExpenseTracker.git
    cd ExpenseTracker
    ```
 
 2. **Start all services**
+
    ```bash
    docker-compose up --build -d
    ```
 
 3. **Verify deployment**
+
    ```bash
    # Check service health
    curl http://localhost:8080/health
-   
+
    # View service status
    docker-compose ps
    ```
@@ -115,17 +115,19 @@ graph TB
 ### First Run
 
 1. **Register a new user**
+
    ```bash
    curl -X POST http://localhost:8080/api/auth/register \
      -H "Content-Type: application/json" \
      -d '{
        "username": "demo_user",
-       "email": "demo@example.com", 
+       "email": "demo@example.com",
        "password": "SecurePassword123!"
      }'
    ```
 
 2. **Login and get JWT token**
+
    ```bash
    curl -X POST http://localhost:8080/api/auth/login \
      -H "Content-Type: application/json" \
@@ -152,58 +154,56 @@ graph TB
 
 ### Authentication Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/register` | Register new user | ❌ |
-| POST | `/api/auth/login` | User login | ❌ |
-| GET | `/api/auth/profile` | Get user profile | ✅ |
-| PUT | `/api/auth/profile` | Update profile | ✅ |
-| POST | `/api/auth/refresh` | Refresh JWT token | ✅ |
+| Method | Endpoint             | Description       | Auth Required |
+| ------ | -------------------- | ----------------- | ------------- |
+| POST   | `/api/auth/register` | Register new user | ❌            |
+| POST   | `/api/auth/login`    | User login        | ❌            |
+| GET    | `/api/auth/profile`  | Get user profile  | ✅            |
+| PUT    | `/api/auth/profile`  | Update profile    | ✅            |
+| POST   | `/api/auth/refresh`  | Refresh JWT token | ✅            |
 
 ### Expense Management
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/expense` | List user expenses | ✅ |
-| POST | `/api/expense` | Create new expense | ✅ |
-| GET | `/api/expense/{id}` | Get expense details | ✅ |
-| PUT | `/api/expense/{id}` | Update expense | ✅ |
-| DELETE | `/api/expense/{id}` | Delete expense | ✅ |
-| GET | `/api/expense/categories` | Get expense categories | ✅ |
+| Method | Endpoint                  | Description            | Auth Required |
+| ------ | ------------------------- | ---------------------- | ------------- |
+| GET    | `/api/expense`            | List user expenses     | ✅            |
+| POST   | `/api/expense`            | Create new expense     | ✅            |
+| GET    | `/api/expense/{id}`       | Get expense details    | ✅            |
+| PUT    | `/api/expense/{id}`       | Update expense         | ✅            |
+| DELETE | `/api/expense/{id}`       | Delete expense         | ✅            |
+| GET    | `/api/expense/categories` | Get expense categories | ✅            |
 
 ### Budget Management
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/budget` | List user budgets | ✅ |
-| POST | `/api/budget` | Create budget | ✅ |
-| GET | `/api/budget/{id}` | Get budget details | ✅ |
-| PUT | `/api/budget/{id}` | Update budget | ✅ |
-| DELETE | `/api/budget/{id}` | Delete budget | ✅ |
-| GET | `/api/budget/{id}/status` | Get budget status | ✅ |
+| Method | Endpoint                  | Description        | Auth Required |
+| ------ | ------------------------- | ------------------ | ------------- |
+| GET    | `/api/budget`             | List user budgets  | ✅            |
+| POST   | `/api/budget`             | Create budget      | ✅            |
+| GET    | `/api/budget/{id}`        | Get budget details | ✅            |
+| PUT    | `/api/budget/{id}`        | Update budget      | ✅            |
+| DELETE | `/api/budget/{id}`        | Delete budget      | ✅            |
+| GET    | `/api/budget/{id}/status` | Get budget status  | ✅            |
 
 ### Analytics & Reporting
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/analytics/dashboard` | Financial dashboard | ✅ |
-| GET | `/api/analytics/summary` | Expense summary | ✅ |
-| GET | `/api/analytics/categories` | Category breakdown | ✅ |
-| GET | `/api/analytics/trends` | Spending trends | ✅ |
-| GET | `/api/analytics/health-status` | Financial health | ✅ |
+| Method | Endpoint                       | Description         | Auth Required |
+| ------ | ------------------------------ | ------------------- | ------------- |
+| GET    | `/api/analytics/dashboard`     | Financial dashboard | ✅            |
+| GET    | `/api/analytics/summary`       | Expense summary     | ✅            |
+| GET    | `/api/analytics/categories`    | Category breakdown  | ✅            |
+| GET    | `/api/analytics/trends`        | Spending trends     | ✅            |
+| GET    | `/api/analytics/health-status` | Financial health    | ✅            |
 
 ### Interactive Documentation
 
 Access comprehensive API documentation with interactive testing:
-
-- **Swagger UI**: http://localhost:8080/swagger
-- **OpenAPI Spec**: http://localhost:8080/swagger/v1/swagger.json
 
 ## 🛠️ Development
 
 ### Local Development Setup
 
 1. **Install .NET 9.0 SDK**
+
    ```bash
    # macOS (using Homebrew)
    brew install dotnet
@@ -215,18 +215,20 @@ Access comprehensive API documentation with interactive testing:
    ```
 
 2. **Start dependencies**
+
    ```bash
    # Start only database
    docker-compose up sqlserver -d
    ```
 
 3. **Run services locally**
+
    ```bash
    # Auth Service
    cd Backend/AuthService
    dotnet run
 
-   # Expense Service  
+   # Expense Service
    cd Backend/ExpenseService
    dotnet run
 
@@ -289,15 +291,17 @@ dotnet build --verbosity normal
 ### Production Deployment
 
 1. **Environment Configuration**
+
    ```bash
    # Copy and customize environment file
    cp .env.example .env
-   
+
    # Edit configuration
    vim .env
    ```
 
 2. **Production Build**
+
    ```bash
    # Build for production
    docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
@@ -308,16 +312,16 @@ dotnet build --verbosity normal
 
 ### Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `DB_PASSWORD` | SQL Server password | `ExpenseTracker123!` | ✅ |
-| `JWT_SECRET` | JWT signing key | Generated | ✅ |
-| `ASPNETCORE_ENVIRONMENT` | Environment | `Development` | ✅ |
-| `AUTH_SERVICE_PORT` | Auth service port | `5001` | ❌ |
-| `EXPENSE_SERVICE_PORT` | Expense service port | `5002` | ❌ |
-| `BUDGET_SERVICE_PORT` | Budget service port | `5003` | ❌ |
-| `ANALYTICS_SERVICE_PORT` | Analytics service port | `5004` | ❌ |
-| `GATEWAY_PORT` | API Gateway port | `8080` | ❌ |
+| Variable                 | Description            | Default              | Required |
+| ------------------------ | ---------------------- | -------------------- | -------- |
+| `DB_PASSWORD`            | SQL Server password    | `ExpenseTracker123!` | ✅       |
+| `JWT_SECRET`             | JWT signing key        | Generated            | ✅       |
+| `ASPNETCORE_ENVIRONMENT` | Environment            | `Development`        | ✅       |
+| `AUTH_SERVICE_PORT`      | Auth service port      | `5001`               | ❌       |
+| `EXPENSE_SERVICE_PORT`   | Expense service port   | `5002`               | ❌       |
+| `BUDGET_SERVICE_PORT`    | Budget service port    | `5003`               | ❌       |
+| `ANALYTICS_SERVICE_PORT` | Analytics service port | `5004`               | ❌       |
+| `GATEWAY_PORT`           | API Gateway port       | `8080`               | ❌       |
 
 ### Health Checks
 
@@ -334,37 +338,22 @@ curl http://localhost:5003/health  # Budget Service
 curl http://localhost:5004/health  # Analytics Service
 ```
 
-## 📖 Documentation
+## Documentation
 
 Comprehensive documentation is available in the [`docs/`](docs/) folder:
 
-### 📂 Documentation Overview
+### Documentation Overview
 
-- **[📋 Documentation Index](docs/README.md)** - Complete documentation guide and navigation
-- **[🏗️ Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)** - Production-ready infrastructure setup and best practices
-- **[🚀 ArgoCD Deployment](docs/ArgoCD-Deployment.md)** - GitOps deployment with ArgoCD
-- **[🔒 Security Guide](docs/SECURITY.md)** - Security practices and vulnerability reporting
-- **[⚡ General Improvements](docs/IMPROVEMENTS.md)** - Project enhancements and features
-- **[🛠️ Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md)** - Backend code quality tracking
+### Quick Documentation Links
 
-### 🎯 Quick Documentation Links
-
-| Role | Recommended Starting Point |
-|------|---------------------------|
-| **Developers** | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) → [General Improvements](docs/IMPROVEMENTS.md) |
+| Role                 | Recommended Starting Point                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Developers**       | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) → [General Improvements](docs/IMPROVEMENTS.md)                |
 | **DevOps Engineers** | [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) → [ArgoCD Deployment](docs/ArgoCD-Deployment.md) |
-| **Security Teams** | [Security Guide](docs/SECURITY.md) → [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) |
-| **Project Managers** | [Documentation Index](docs/README.md) → [General Improvements](docs/IMPROVEMENTS.md) |
+| **Security Teams**   | [Security Guide](docs/SECURITY.md) → [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)             |
+| **Project Managers** | [Documentation Index](docs/README.md) → [General Improvements](docs/IMPROVEMENTS.md)                                |
 
 ### 📈 Infrastructure Features
-
-- ✅ **Production-ready Kubernetes** manifests with Kustomize overlays
-- ✅ **GitOps deployment** with ArgoCD for multiple environments
-- ✅ **Security hardening** with RBAC, network policies, and security contexts
-- ✅ **Auto-scaling** with HPA and resource management
-- ✅ **Monitoring stack** with Prometheus and Grafana
-- ✅ **Backup strategy** with automated PostgreSQL backups
-- ✅ **TLS ingress** with rate limiting and security headers
 
 ## 🤝 Contributing
 
@@ -395,12 +384,10 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ### Code Standards
 
-- Follow [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
-- Write unit tests for new features
-- Update documentation for API changes
-- Use conventional commit messages
+- Follow standard C# coding conventions.
+- Use meaningful variable and method names.
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -415,6 +402,7 @@ lsof -i :5001
 # Kill process using port
 sudo kill -9 $(lsof -t -i:8080)
 ```
+
 </details>
 
 <details>
@@ -432,6 +420,7 @@ docker-compose exec sqlserver /opt/mssql-tools/bin/sqlcmd \
 docker-compose down -v
 docker-compose up sqlserver -d
 ```
+
 </details>
 
 <details>
@@ -450,6 +439,7 @@ docker-compose down -v
 docker system prune -f
 docker-compose up --build -d
 ```
+
 </details>
 
 <details>
@@ -467,6 +457,7 @@ curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password"}'
 ```
+
 </details>
 
 ### Performance Optimization
@@ -484,26 +475,14 @@ docker-compose logs -f --tail=100 [service-name]
 
 ### Getting Help
 
-- 📖 Check our [Documentation](docs/)
-- 🐛 Report bugs via [Issues](https://github.com/your-username/ExpenseTracker/issues)
-- 💬 Join our [Discussions](https://github.com/your-username/ExpenseTracker/discussions)
-- 📧 Email: support@expensetracker.com
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/) - Web framework
-- [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/) - ORM
-- [Docker](https://www.docker.com/) - Containerization
-- [Nginx](https://nginx.org/) - Reverse proxy
-- [SQL Server](https://www.microsoft.com/en-us/sql-server) - Database
-
----
+## Acknowledgments
 
 <div align="center">
 
-**[⬆ Back to Top](#expensetracker)**
+**Back to Top**
+
 </div>
