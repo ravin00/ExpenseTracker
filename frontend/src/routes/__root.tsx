@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Link, Outlet, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { LayoutDashboard, Target, Wallet } from 'lucide-react'
 
@@ -7,6 +7,19 @@ export const Route = createRootRoute({
 })
 
 function RootLayout() {
+    const { location } = useRouterState()
+    const isLandingPage = location.pathname === '/'
+
+    // Landing page manages its own layout (Navbar, Footer, etc.)
+    if (isLandingPage) {
+        return (
+            <>
+                <Outlet />
+                <TanStackRouterDevtools />
+            </>
+        )
+    }
+
     return (
         <>
             <div className="min-h-screen bg-background">

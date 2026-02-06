@@ -1,37 +1,34 @@
+import {
+    CTA,
+    Features,
+    Footer,
+    Hero,
+    HowItWorks,
+    Navbar,
+    Pricing,
+    Stats,
+    Testimonials,
+} from '@/components/landing'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-    component: DashboardPage,
+    component: LandingPage,
 })
 
-function DashboardPage() {
+function LandingPage() {
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="text-muted-foreground mt-1">
-                    Welcome back! Here's an overview of your expenses.
-                </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-lg border bg-card p-6">
-                    <h3 className="text-sm font-medium text-muted-foreground">Total Budget</h3>
-                    <p className="text-2xl font-bold mt-2">$0.00</p>
-                </div>
-                <div className="rounded-lg border bg-card p-6">
-                    <h3 className="text-sm font-medium text-muted-foreground">Total Spent</h3>
-                    <p className="text-2xl font-bold mt-2">$0.00</p>
-                </div>
-                <div className="rounded-lg border bg-card p-6">
-                    <h3 className="text-sm font-medium text-muted-foreground">Remaining</h3>
-                    <p className="text-2xl font-bold mt-2">$0.00</p>
-                </div>
-                <div className="rounded-lg border bg-card p-6">
-                    <h3 className="text-sm font-medium text-muted-foreground">Active Budgets</h3>
-                    <p className="text-2xl font-bold mt-2">0</p>
-                </div>
-            </div>
+        <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-950 dark:via-gray-900/30 dark:to-gray-950 text-gray-900 dark:text-white overflow-x-hidden">
+            <Navbar />
+            <main>
+                <Hero />
+                <Features />
+                <Stats />
+                <HowItWorks />
+                <Testimonials />
+                <Pricing />
+                <CTA />
+            </main>
+            <Footer />
         </div>
     )
 }
