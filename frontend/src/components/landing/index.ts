@@ -1,0 +1,10 @@
+export { CTA } from './CTA'
+export { Features } from './Features'
+export { Footer } from './Footer'
+export { Hero } from './Hero'
+export { HowItWorks } from './HowItWorks'
+export { Navbar } from './Navbar'
+export { Pricing } from './Pricing'
+export { Stats } from './Stats'
+export { Testimonials } from './Testimonials'
+
