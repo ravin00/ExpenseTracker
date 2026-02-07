@@ -59,7 +59,7 @@ export function Navbar() {
 
                     {/* Desktop CTA with Premium Buttons */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Link to="/">
+                        <Link to="/login">
                             <Button
                                 variant="ghost"
                                 className="text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl px-5"
@@ -67,7 +67,7 @@ export function Navbar() {
                                 Sign In
                             </Button>
                         </Link>
-                        <Link to="/">
+                        <Link to="/register">
                             <Button className="group relative bg-gradient-to-r from-blue-600 via-violet-600 to-blue-600 bg-[length:200%_auto] hover:bg-right text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 text-sm font-semibold px-6 py-2.5 rounded-xl border border-white/20 overflow-hidden">
                                 <span className="relative z-10 flex items-center gap-1">
                                     Get Started Free
@@ -111,15 +111,19 @@ export function Navbar() {
                         ))}
                     </nav>
                     <div className="flex flex-col gap-3 mt-5 pt-5 border-t border-gray-200 dark:border-gray-800">
-                        <Button
-                            variant="outline"
-                            className="w-full justify-center rounded-xl py-3 font-semibold border-2"
-                        >
-                            Sign In
-                        </Button>
-                        <Button className="w-full justify-center bg-gradient-to-r from-blue-600 via-violet-600 to-blue-600 bg-[length:200%_auto] text-white rounded-xl py-3 font-semibold shadow-lg shadow-blue-500/25">
-                            Get Started Free
-                        </Button>
+                        <Link to="/login" onClick={() => setMobileOpen(false)}>
+                            <Button
+                                variant="outline"
+                                className="w-full justify-center rounded-xl py-3 font-semibold border-2"
+                            >
+                                Sign In
+                            </Button>
+                        </Link>
+                        <Link to="/register" onClick={() => setMobileOpen(false)}>
+                            <Button className="w-full justify-center bg-gradient-to-r from-blue-600 via-violet-600 to-blue-600 bg-[length:200%_auto] text-white rounded-xl py-3 font-semibold shadow-lg shadow-blue-500/25">
+                                Get Started Free
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>
