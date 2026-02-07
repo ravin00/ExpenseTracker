@@ -1,7 +1,7 @@
 // Badge Component
 import type { ReactNode } from 'react'
 
-interface BadgeProps {
+interface StatusBadgeProps {
     children: ReactNode
     variant?: 'default' | 'success' | 'warning' | 'danger' | 'info'
     size?: 'sm' | 'md'
@@ -21,12 +21,12 @@ const sizeClasses = {
     md: 'px-2.5 py-1 text-sm',
 }
 
-export function Badge({
+export function StatusBadge({
     children,
     variant = 'default',
     size = 'sm',
     className = ''
-}: BadgeProps) {
+}: StatusBadgeProps) {
     return (
         <span className={`inline-flex items-center font-medium rounded-full ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
             {children}
