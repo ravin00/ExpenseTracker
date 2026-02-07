@@ -1,6 +1,8 @@
-import { createRootRoute, Link, Outlet, useRouterState } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { Link, Outlet, createRootRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { LayoutDashboard, Target, Wallet } from 'lucide-react'
+import { BarChart3, LayoutDashboard, Target, Wallet } from 'lucide-react'
 
 export const Route = createRootRoute({
     component: RootLayout,
@@ -51,7 +53,19 @@ function RootLayout() {
                                         <Target className="h-4 w-4" />
                                         Budgets
                                     </Link>
+                                    <Link
+                                        to="/analytics"
+                                        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+                                        activeProps={{ className: 'bg-secondary text-secondary-foreground' }}
+                                        inactiveProps={{ className: 'text-muted-foreground hover:bg-secondary/50' }}
+                                    >
+                                        <BarChart3 className="h-4 w-4" />
+                                        Analytics
+                                    </Link>
                                 </div>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <AuthButtons />
                             </div>
                         </div>
                     </div>
@@ -63,5 +77,36 @@ function RootLayout() {
             </div>
             <TanStackRouterDevtools />
         </>
+    )
+}
+
+function AuthButtons() {
+    const { isAuthenticated, user, logout } = useAuth()
+    const navigate = useNavigate()
+
+    const handleLogout = () => {
+        logout()
+        navigate({ to: '/login' })
+    }
+
+    if (isAuthenticated && user) {
+        return (
+            <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-muted-foreground">
+                    {user.username}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                    Log out
+                </Button>
+            </div>
+        )
+    }
+
+    return (
+        <Link to="/login">
+            <Button variant="default" size="sm">
+                Sign in
+            </Button>
+        </Link>
     )
 }

@@ -111,7 +111,7 @@ try
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
         policy
-            .WithOrigins("http://localhost:8088")
+            .WithOrigins("http://localhost:8088", "http://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });

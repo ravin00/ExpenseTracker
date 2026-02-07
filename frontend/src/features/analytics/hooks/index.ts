@@ -1,5 +1,3 @@
-// Analytics Hooks
-export { useAnalytics } from './useAnalytics'
-export { useDashboard } from './useDashboard'
+export { useAnalytics, useExpensesByCategory, useFinancialSummary } from './useAnalytics'
 export { useSpendingTrends } from './useSpendingTrends'
-
+export { useDashboard } from './useDashboard'
