@@ -1,11 +1,6 @@
+import type { User } from '@/features/auth/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-type User = {
-    id: number
-    email: string
-    name: string
-}
 
 type AuthState = {
     user: User | null
