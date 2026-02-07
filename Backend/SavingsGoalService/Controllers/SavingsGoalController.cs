@@ -10,14 +10,9 @@ namespace SavingsGoalService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize] // Require JWT
-    public class SavingsGoalController (): ControllerBase
+    public class SavingsGoalController (ISavingsGoalService service): ControllerBase
     {
-        private readonly ISavingsGoalService _service;
-
-        public SavingsGoalController(ISavingsGoalService service)
-        {
-            _service = service;
-        }
+        private readonly ISavingsGoalService _service = service;
 
         private int GetUserId()
         {

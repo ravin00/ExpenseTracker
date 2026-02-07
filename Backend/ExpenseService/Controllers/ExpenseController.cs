@@ -9,7 +9,7 @@ namespace ExpenseService.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize] // Require JWT
-    public class ExpenseController (Services.ExpenseService service): ControllerBase
+    public class ExpenseController (IExpenseService service): ControllerBase
     {
         private int GetUserId()
         {
