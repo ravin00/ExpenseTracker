@@ -37,7 +37,11 @@ try
     builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
     builder.Services.AddScoped<IAnalyticsService, AnalyticsService.Services.AnalyticsService>();
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        });
     builder.Services.AddEndpointsApiExplorer();
 
     // Enhanced Swagger configuration
@@ -109,7 +113,7 @@ try
     options.AddPolicy("AllowSwaggerUI", policy =>
     {
         policy
-            .WithOrigins("http://localhost:8088")
+            .WithOrigins("http://localhost:8088", "http://localhost:5173")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
