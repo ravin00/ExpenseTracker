@@ -52,7 +52,7 @@ export const analyticsApi = {
     },
 
     generateAnalytics: async (period: string): Promise<Analytics> => {
-        return api.post<Analytics>(`/analytics/generate?period=${period}`)
+        return api.post<Analytics>(`/analytics/generate`, { period })
     },
 
     health: async (): Promise<{ status: string }> => {
