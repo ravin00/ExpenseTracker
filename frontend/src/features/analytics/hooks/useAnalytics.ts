@@ -13,18 +13,32 @@ export function useAnalytics(startDate?: string, endDate?: string) {
 }
 
 export function useExpensesByCategory(startDate?: string, endDate?: string) {
+    // Default to last 30 days if no dates provided
+    const defaultEndDate = new Date().toISOString().split('T')[0]
+    const defaultStartDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
     const { data: categories = [], isLoading, error } = useQuery({
         queryKey: ['expenses-by-category', startDate, endDate],
-        queryFn: () => analyticsApi.getExpensesByCategory(startDate, endDate),
+        queryFn: () => analyticsApi.getExpensesByCategory(
+            startDate || defaultStartDate,
+            endDate || defaultEndDate
+        ),
     })
 
     return { categories, isLoading, error }
 }
 
 export function useFinancialSummary(startDate?: string, endDate?: string) {
+    // Default to last 30 days if no dates provided
+    const defaultEndDate = new Date().toISOString().split('T')[0]
+    const defaultStartDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
     const { data: summary, isLoading, error } = useQuery({
         queryKey: ['financial-summary', startDate, endDate],
-        queryFn: () => analyticsApi.getFinancialSummary(startDate, endDate),
+        queryFn: () => analyticsApi.getFinancialSummary(
+            startDate || defaultStartDate,
+            endDate || defaultEndDate
+        ),
     })
 
     return { summary, isLoading, error }

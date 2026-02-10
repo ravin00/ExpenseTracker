@@ -39,7 +39,7 @@ export const analyticsApi = {
         if (startDate) params.append('startDate', startDate)
         if (endDate) params.append('endDate', endDate)
         const query = params.toString() ? `?${params.toString()}` : ''
-        return api.get<ExpenseByCategory[]>(`/analytics/category${query}`)
+        return api.get<ExpenseByCategory[]>(`/analytics/categories${query}`)
     },
 
     getSpendingTrends: async (period?: string): Promise<SpendingTrend[]> => {
