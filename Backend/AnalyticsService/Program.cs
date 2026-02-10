@@ -33,6 +33,21 @@ try
     builder.Services.AddDbContext<AnalyticsDbContext>(options =>
         options.UseNpgsql(connectionString));
 
+    // Add read-only contexts for querying other service databases
+    var expenseConnectionString = builder.Configuration.GetConnectionString("ExpenseDb");
+    if (!string.IsNullOrEmpty(expenseConnectionString))
+    {
+        builder.Services.AddDbContext<ExpenseDbContext>(options =>
+            options.UseNpgsql(expenseConnectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+    }
+
+    var budgetConnectionString = builder.Configuration.GetConnectionString("BudgetDb");
+    if (!string.IsNullOrEmpty(budgetConnectionString))
+    {
+        builder.Services.AddDbContext<BudgetDbContext>(options =>
+            options.UseNpgsql(budgetConnectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+    }
+
     // Services & repositories
     builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
     builder.Services.AddScoped<IAnalyticsService, AnalyticsService.Services.AnalyticsService>();
