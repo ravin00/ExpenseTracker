@@ -15,7 +15,7 @@ export function SpendingChart({ trends, isLoading }: SpendingChartProps) {
     }
 
     const maxAmount = Math.max(...trends.map(t => t.amount))
-    
+
     const formatCurrency = (amount: number) =>
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 
@@ -27,15 +27,14 @@ export function SpendingChart({ trends, isLoading }: SpendingChartProps) {
     return (
         <div className="spending-chart">
             <h2>Spending Trends</h2>
-            
+
             <div className="chart-container">
                 <div className="chart-bars">
                     {trends.map((trend, index) => (
                         <div key={index} className="bar-wrapper">
-                            <div 
+                            <div
                                 className="bar"
-                                style={{ height: `${(trend.amount / maxAmount) * 100}%` }}
-                                title={formatCurrency(trend.amount)}
+                                style={{ height: `${maxAmount > 0 ? (trend.amount / maxAmount) * 100 : 0}%` }}
                             >
                                 <span className="bar-value">{formatCurrency(trend.amount)}</span>
                             </div>
