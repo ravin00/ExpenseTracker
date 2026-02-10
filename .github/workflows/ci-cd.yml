@@ -1,18 +1,18 @@
 # GitHub Actions CI/CD Pipeline for ExpenseTracker Microservices
-# .NET 9.0 with Docker support
+# .NET 8.0 with Docker support
 name: ExpenseTracker CI/CD
 
 on:
   push:
-    branches: [ main, develop, fix/*, feat/* ]
+    branches: [main, develop, fix/*, feat/*]
   pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:  # Allow manual triggering
+    branches: [main, develop]
+  workflow_dispatch: # Allow manual triggering
 
 env:
-  DOTNET_VERSION: '9.0.x'
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }} # Image name is pointed to the repository owner
+  DOTNET_VERSION: "9.0.x"
+  DOCKER_HUB_USERNAME: ravinbanda
+  IMAGE_NAME: ravinbanda/spendwise
 
 jobs:
   # Build AuthService
@@ -20,353 +20,366 @@ jobs:
     name: Build AuthService
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore Backend/AuthService/AuthService.csproj --verbosity detailed
-    
-    - name: Build AuthService
-      run: |
-        echo "Building AuthService..."
-        dotnet build Backend/AuthService/AuthService.csproj --no-restore --configuration Release
-        echo "AuthService build complete"
-    
-    - name: Upload AuthService artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: auth-service-build
-        path: |
-          Backend/AuthService/bin/
-          Backend/AuthService/obj/
-        retention-days: 1
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Backend/AuthService/AuthService.csproj --verbosity detailed
+
+      - name: Build AuthService
+        run: |
+          echo "Building AuthService..."
+          dotnet build Backend/AuthService/AuthService.csproj --no-restore --configuration Release
+          echo "AuthService build complete"
+
+      - name: Upload AuthService artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-service-build
+          path: |
+            Backend/AuthService/bin/
+            Backend/AuthService/obj/
+          retention-days: 1
 
   # Build ExpenseService
   build-expense-service:
     name: Build ExpenseService
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore Backend/ExpenseService/ExpenseService.csproj --verbosity detailed
-    
-    - name: Build ExpenseService
-      run: |
-        echo "Building ExpenseService..."
-        dotnet build Backend/ExpenseService/ExpenseService.csproj --no-restore --configuration Release
-        echo "ExpenseService build complete"
-    
-    - name: Upload ExpenseService artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: expense-service-build
-        path: |
-          Backend/ExpenseService/bin/
-          Backend/ExpenseService/obj/
-        retention-days: 1
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Backend/ExpenseService/ExpenseService.csproj --verbosity detailed
+
+      - name: Build ExpenseService
+        run: |
+          echo "Building ExpenseService..."
+          dotnet build Backend/ExpenseService/ExpenseService.csproj --no-restore --configuration Release
+          echo "ExpenseService build complete"
+
+      - name: Upload ExpenseService artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: expense-service-build
+          path: |
+            Backend/ExpenseService/bin/
+            Backend/ExpenseService/obj/
+          retention-days: 1
 
   # Build CategoryService
   build-category-service:
     name: Build CategoryService
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore Backend/CategoryService/CategoryService.csproj --verbosity detailed
-    
-    - name: Build CategoryService
-      run: |
-        echo "Building CategoryService..."
-        dotnet build Backend/CategoryService/CategoryService.csproj --no-restore --configuration Release
-        echo "CategoryService build complete"
-    
-    - name: Upload CategoryService artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: category-service-build
-        path: |
-          Backend/CategoryService/bin/
-          Backend/CategoryService/obj/
-        retention-days: 1
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Backend/CategoryService/CategoryService.csproj --verbosity detailed
+
+      - name: Build CategoryService
+        run: |
+          echo "Building CategoryService..."
+          dotnet build Backend/CategoryService/CategoryService.csproj --no-restore --configuration Release
+          echo "CategoryService build complete"
+
+      - name: Upload CategoryService artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: category-service-build
+          path: |
+            Backend/CategoryService/bin/
+            Backend/CategoryService/obj/
+          retention-days: 1
 
   # Build BudgetService
   build-budget-service:
     name: Build BudgetService
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore Backend/BudgetService/BudgetService.csproj --verbosity detailed
-    
-    - name: Build BudgetService
-      run: |
-        echo "Building BudgetService..."
-        dotnet build Backend/BudgetService/BudgetService.csproj --no-restore --configuration Release
-        echo "BudgetService build complete"
-    
-    - name: Upload BudgetService artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: budget-service-build
-        path: |
-          Backend/BudgetService/bin/
-          Backend/BudgetService/obj/
-        retention-days: 1
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Backend/BudgetService/BudgetService.csproj --verbosity detailed
+
+      - name: Build BudgetService
+        run: |
+          echo "Building BudgetService..."
+          dotnet build Backend/BudgetService/BudgetService.csproj --no-restore --configuration Release
+          echo "BudgetService build complete"
+
+      - name: Upload BudgetService artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: budget-service-build
+          path: |
+            Backend/BudgetService/bin/
+            Backend/BudgetService/obj/
+          retention-days: 1
 
   # Build SavingsGoalService
   build-savings-goal-service:
     name: Build SavingsGoalService
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore Backend/SavingsGoalService/SavingsGoalService.csproj --verbosity detailed
-    
-    - name: Build SavingsGoalService
-      run: |
-        echo "Building SavingsGoalService..."
-        dotnet build Backend/SavingsGoalService/SavingsGoalService.csproj --no-restore --configuration Release
-        echo "SavingsGoalService build complete"
-    
-    - name: Upload SavingsGoalService artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: savings-goal-service-build
-        path: |
-          Backend/SavingsGoalService/bin/
-          Backend/SavingsGoalService/obj/
-        retention-days: 1
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Backend/SavingsGoalService/SavingsGoalService.csproj --verbosity detailed
+
+      - name: Build SavingsGoalService
+        run: |
+          echo "Building SavingsGoalService..."
+          dotnet build Backend/SavingsGoalService/SavingsGoalService.csproj --no-restore --configuration Release
+          echo "SavingsGoalService build complete"
+
+      - name: Upload SavingsGoalService artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: savings-goal-service-build
+          path: |
+            Backend/SavingsGoalService/bin/
+            Backend/SavingsGoalService/obj/
+          retention-days: 1
 
   # Unit Tests
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service, build-category-service, build-budget-service, build-savings-goal-service]
+    needs:
+      [
+        build-auth-service,
+        build-expense-service,
+        build-category-service,
+        build-budget-service,
+        build-savings-goal-service,
+      ]
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore ExpenseTracker.sln --verbosity detailed
-    
-    - name: Run unit tests
-      run: |
-        echo "Running unit tests..."
-        dotnet test --configuration Release --verbosity normal || echo "No test projects found"
-        echo "Tests completed"
-      continue-on-error: true
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore ExpenseTracker.sln --verbosity detailed
+
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          dotnet test --configuration Release --verbosity normal || echo "No test projects found"
+          echo "Tests completed"
+        continue-on-error: true
 
   # Code Quality
   code-quality:
     name: Code Quality Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    
-    - name: Restore dependencies
-      run: dotnet restore ExpenseTracker.sln --verbosity detailed
-    
-    - name: Install dotnet format
-      run: dotnet tool install -g dotnet-format || true
-    
-    - name: Run code formatting check
-      run: |
-        echo "Running code analysis..."
-        export PATH="$PATH:$HOME/.dotnet/tools"
-        dotnet format --verify-no-changes --verbosity normal || echo "⚠️ Code formatting issues found"
-        echo "Code quality check completed"
-      continue-on-error: true
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore ExpenseTracker.sln --verbosity detailed
+
+      - name: Install dotnet format
+        run: dotnet tool install -g dotnet-format || true
+
+      - name: Run code formatting check
+        run: |
+          echo "Running code analysis..."
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          dotnet format --verify-no-changes --verbosity normal || echo "⚠️ Code formatting issues found"
+          echo "Code quality check completed"
+        continue-on-error: true
 
   # Build Docker Images
   docker-build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [build-auth-service, build-expense-service, build-category-service, build-budget-service, build-savings-goal-service]
+    needs:
+      [
+        build-auth-service,
+        build-expense-service,
+        build-category-service,
+        build-budget-service,
+        build-savings-goal-service,
+      ]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     permissions:
       contents: read
       packages: write
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: Build and push AuthService Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: Backend/AuthService
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth-service:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/auth-service:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-    
-    - name: Build and push ExpenseService Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: Backend/ExpenseService
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/expense-service:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/expense-service:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-    
-    - name: Build and push CategoryService Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: Backend/CategoryService
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/category-service:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/category-service:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-    
-    - name: Build and push BudgetService Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: Backend/BudgetService
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/budget-service:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/budget-service:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-    
-    - name: Build and push SavingsGoalService Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: Backend/SavingsGoalService
-        push: true
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/savings-goal-service:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/savings-goal-service:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push AuthService Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/AuthService
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:auth-service-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:auth-service-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push ExpenseService Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/ExpenseService
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:expense-service-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:expense-service-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push CategoryService Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/CategoryService
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:category-service-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:category-service-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push BudgetService Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/BudgetService
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:budget-service-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:budget-service-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push SavingsGoalService Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/SavingsGoalService
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:savings-goal-service-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:savings-goal-service-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   # Validate Docker Compose
   validate-docker-compose:
     name: Validate Docker Compose
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Validate Docker Compose configuration
-      run: |
-        echo "Validating Docker Compose configuration..."
-        if docker compose version > /dev/null 2>&1; then
-          echo "Using modern docker compose"
-          docker compose config && echo "Docker Compose configuration is valid"
-        elif command -v docker-compose > /dev/null 2>&1; then
-          echo "Using legacy docker-compose"
-          docker-compose config && echo "Docker Compose configuration is valid"
-        else
-          echo "Docker Compose not available"
-          exit 1
-        fi
+      - uses: actions/checkout@v4
+
+      - name: Validate Docker Compose configuration
+        run: |
+          echo "Validating Docker Compose configuration..."
+          if docker compose version > /dev/null 2>&1; then
+            echo "Using modern docker compose"
+            docker compose config && echo "Docker Compose configuration is valid"
+          elif command -v docker-compose > /dev/null 2>&1; then
+            echo "Using legacy docker-compose"
+            docker-compose config && echo "Docker Compose configuration is valid"
+          else
+            echo "Docker Compose not available"
+            exit 1
+          fi
 
   # Security Scan
   security-scan:
@@ -374,25 +387,25 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write  # Required for uploading SARIF results
+      security-events: write # Required for uploading SARIF results
       actions: read
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/'))
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-    
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
 
   # Deploy to Development
   deploy-development:
@@ -401,11 +414,11 @@ jobs:
     needs: [docker-build, validate-docker-compose]
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     steps:
-    - name: Deploy to development environment
-      run: |
-        echo "Deploying to development environment..."
-        echo "Deployment commands would go here"
-        echo "Successfully deployed to development"
+      - name: Deploy to development environment
+        run: |
+          echo "Deploying to development environment..."
+          echo "Deployment commands would go here"
+          echo "Successfully deployed to development"
 
   # Deploy to Production (manual approval required)
   deploy-production:
@@ -414,20 +427,21 @@ jobs:
     needs: [docker-build, validate-docker-compose]
     if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')) && github.event_name == 'workflow_dispatch'
     steps:
-    - name: Deploy to production environment
-      run: |
-        echo "Deploying to production environment..."
-        echo "Production deployment commands would go here"
-        echo "Successfully deployed to production"
+      - name: Deploy to production environment
+        run: |
+          echo "Deploying to production environment..."
+          echo "Production deployment commands would go here"
+          echo "Successfully deployed to production"
 
   # Cleanup
   cleanup:
     name: Cleanup
     runs-on: ubuntu-latest
-    needs: [test, code-quality, docker-build, validate-docker-compose, security-scan]
+    needs:
+      [test, code-quality, docker-build, validate-docker-compose, security-scan]
     if: always()
     steps:
-    - name: Cleanup temporary files
-      run: |
-        echo "Cleaning up temporary files..."
-        echo "Cleanup completed"
+      - name: Cleanup temporary files
+        run: |
+          echo "Cleaning up temporary files..."
+          echo "Cleanup completed"

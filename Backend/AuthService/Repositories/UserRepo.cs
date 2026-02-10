@@ -111,5 +111,21 @@ namespace AuthService.Repositories
                 throw;
             }
         }
+
+        public async Task<User?> UpdateUserAsync(User user)
+        {
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("User updated successfully - ID: {UserId}", user.Id);
+                return user;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user: {UserId}", user.Id);
+                throw;
+            }
+        }
     }
 }

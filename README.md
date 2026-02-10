@@ -78,7 +78,7 @@ graph TB
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [Git](https://git-scm.com/)
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (optional, for local dev)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (optional, for local dev)
 
 ### Installation
 
@@ -314,7 +314,7 @@ dotnet build --verbosity normal
 
 | Variable                 | Description            | Default              | Required |
 | ------------------------ | ---------------------- | -------------------- | -------- |
-| `DB_PASSWORD`            | SQL Server password    | `ExpenseTracker123!` | ✅       |
+| `DB_PASSWORD`            | Postgres SQL           | `ExpenseTracker123!` | ✅       |
 | `JWT_SECRET`             | JWT signing key        | Generated            | ✅       |
 | `ASPNETCORE_ENVIRONMENT` | Environment            | `Development`        | ✅       |
 | `AUTH_SERVICE_PORT`      | Auth service port      | `5001`               | ❌       |

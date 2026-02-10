@@ -119,6 +119,57 @@ namespace AuthService.Controllers
         }
 
         /// <summary>
+        /// Update user profile (username and/or email)
+        /// </summary>
+        /// <param name="dto">Profile update data</param>
+        /// <returns>Updated user profile</returns>
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Extract user ID from JWT token claims
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized(new { message = "Invalid token" });
+                }
+
+                var updatedUser = await authService.UpdateProfileAsync(userId, dto);
+
+                if (updatedUser == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                return Ok(new
+                {
+                    id = updatedUser.Id,
+                    username = updatedUser.Username,
+                    email = updatedUser.Email,
+                    updatedAt = updatedUser.UpdatedAt,
+                    message = "Profile updated successfully"
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogWarning("Profile update failed: {Message}", ex.Message);
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error updating profile");
+                return StatusCode(500, new { message = "Error updating profile", error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Health check endpoint
         /// </summary>
         /// <returns>Service status</returns>

@@ -17,6 +17,10 @@ export const authApi = {
         return api.get<User>(`/auth/profile/${userId}`)
     },
 
+    updateProfile: async (data: { username?: string; email?: string }): Promise<User> => {
+        return api.put<User>('/auth/profile', data)
+    },
+
     health: async (): Promise<{ status: string }> => {
         return api.get('/auth/health')
     },

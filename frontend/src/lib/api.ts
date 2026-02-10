@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 import { useAuthStore } from '@/stores/auth-store'
+import { isTokenExpired } from './jwt-utils'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5100'
 
 class ApiError extends Error {
     constructor(
@@ -19,6 +20,14 @@ async function fetchWithAuth<T>(
     options: RequestInit = {}
 ): Promise<T> {
     const token = useAuthStore.getState().token
+
+    // Check if token is expired before making request
+    if (token && isTokenExpired(token)) {
+        console.log('Token expired before request, logging out')
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+        throw new ApiError('Token expired', 401)
+    }
 
     const config: RequestInit = {
         ...options,
