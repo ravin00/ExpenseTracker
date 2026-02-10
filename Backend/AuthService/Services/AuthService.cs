@@ -84,6 +84,46 @@ namespace AuthService.Services
             return user;
         }
 
+        public async Task<User?> UpdateProfileAsync(int userId, UpdateProfileDto dto)
+        {
+            _logger.LogInformation("Attempting to update profile for user ID: {UserId}", userId);
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("Update profile failed - user not found: {UserId}", userId);
+                return null;
+            }
+
+            // Check if new username is already taken by another user
+            if (!string.IsNullOrEmpty(dto.Username) && dto.Username != user.Username)
+            {
+                var existingUser = await _userRepository.GetByUsernameAsync(dto.Username);
+                if (existingUser != null && existingUser.Id != userId)
+                {
+                    _logger.LogWarning("Update profile failed - username already exists: {Username}", dto.Username);
+                    throw new InvalidOperationException("Username is already taken");
+                }
+                user.Username = dto.Username;
+            }
+
+            // Check if new email is already taken by another user
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email.ToLowerInvariant() != user.Email)
+            {
+                var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
+                if (existingUser != null && existingUser.Id != userId)
+                {
+                    _logger.LogWarning("Update profile failed - email already exists: {Email}", dto.Email);
+                    throw new InvalidOperationException("Email is already taken");
+                }
+                user.Email = dto.Email.ToLowerInvariant();
+            }
+
+            var updatedUser = await _userRepository.UpdateUserAsync(user);
+            _logger.LogInformation("Profile updated successfully for user ID: {UserId}", userId);
+            return updatedUser;
+        }
+
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password, 12);
