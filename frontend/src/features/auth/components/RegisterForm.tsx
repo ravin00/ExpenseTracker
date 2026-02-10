@@ -48,69 +48,78 @@ export function RegisterForm() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-[80vh] px-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
-                    <CardDescription className="text-center">
+        <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
+            <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+                <CardHeader className="space-y-2 pb-6">
+                    <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Create an account
+                    </CardTitle>
+                    <CardDescription className="text-center text-base">
                         Enter your information to create your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="username">Username</Label>
+                            <Label htmlFor="username" className="text-sm font-semibold">Username</Label>
                             <Input
                                 id="username"
                                 placeholder="johndoe"
                                 {...register('username')}
                                 disabled={isRegistering}
+                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.username && (
-                                <p className="text-sm text-destructive font-medium text-red-500">
+                                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
                                     {errors.username.message}
                                 </p>
                             )}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 placeholder="name@example.com"
                                 {...register('email')}
                                 disabled={isRegistering}
+                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.email && (
-                                <p className="text-sm text-destructive font-medium text-red-500">
+                                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
                                     {errors.email.message}
                                 </p>
                             )}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
                             <Input
                                 id="password"
                                 type="password"
                                 {...register('password')}
                                 disabled={isRegistering}
+                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.password && (
-                                <p className="text-sm text-destructive font-medium text-red-500">
+                                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
                                     {errors.password.message}
                                 </p>
                             )}
                         </div>
-                        <Button type="submit" className="w-full" disabled={isRegistering}>
+                        <Button
+                            type="submit"
+                            className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                            disabled={isRegistering}
+                        >
                             {isRegistering && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Create Account
                         </Button>
                     </form>
                 </CardContent>
-                <CardFooter className="flex flex-col space-y-2 text-center text-sm text-muted-foreground">
+                <CardFooter className="flex flex-col space-y-2 text-center text-sm text-muted-foreground pt-6">
                     <div>
                         Already have an account?{' '}
-                        <Link to="/login" className="font-semibold text-primary hover:underline">
+                        <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                             Sign in
                         </Link>
                     </div>
