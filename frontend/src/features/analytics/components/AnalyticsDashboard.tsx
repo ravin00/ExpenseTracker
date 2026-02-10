@@ -1,28 +1,20 @@
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useState } from 'react';
 import '../analytics.css';
-import { useExpensesByCategory, useFinancialSummary, useGenerateAnalytics } from '../hooks/useAnalytics'
-import { useSpendingTrends } from '../hooks/useSpendingTrends'
-import type { AnalyticsPeriod } from '../types'
-import { BudgetAnalysis } from './BudgetAnalysis'
-import { CategoryBreakdown } from './CategoryBreakdown'
-import { DateRangePicker } from './DateRangePicker'
-import { FinancialSummary } from './FinancialSummary'
-import { SpendingChart } from './SpendingChart'
-import { TrendChart } from './TrendChart'
+import { useExpensesByCategory, useFinancialSummary } from '../hooks/useAnalytics';
+import { useSpendingTrends } from '../hooks/useSpendingTrends';
+import type { AnalyticsPeriod } from '../types';
+import { BudgetAnalysis } from './BudgetAnalysis';
+import { CategoryBreakdown } from './CategoryBreakdown';
+import { DateRangePicker } from './DateRangePicker';
+import { FinancialSummary } from './FinancialSummary';
+import { SpendingChart } from './SpendingChart';
+import { TrendChart } from './TrendChart';
 
 export function AnalyticsDashboard() {
     const [dateRange, setDateRange] = useState<{ start?: string; end?: string }>({})
     const [trendPeriod, setTrendPeriod] = useState<AnalyticsPeriod>('Monthly')
 
-    const { mutate: generateAnalytics, isPending: isGenerating } = useGenerateAnalytics()
 
-    const handleGenerateData = () => {
-        generateAnalytics('Monthly', {
-            onSuccess: () => toast.success('Analytics data generated successfully'),
-            onError: () => toast.error('Failed to generate analytics data')
-        })
-    }
 
     const { summary, isLoading: summaryLoading } = useFinancialSummary(
         dateRange.start,
@@ -53,14 +45,6 @@ export function AnalyticsDashboard() {
                 <h1>Analytics Dashboard</h1>
                 <div className="header-actions">
                     <DateRangePicker onRangeChange={handleDateRangeChange} />
-                    <button
-                        className="btn-primary"
-                        onClick={handleGenerateData}
-                        disabled={isGenerating}
-                        style={{ marginLeft: '1rem', padding: '0.5rem 1rem', borderRadius: '0.375rem', backgroundColor: '#2563eb', color: 'white', border: 'none', cursor: isGenerating ? 'not-allowed' : 'pointer' }}
-                    >
-                        {isGenerating ? 'Generating...' : 'Generate Data'}
-                    </button>
                 </div>
             </header>
 
