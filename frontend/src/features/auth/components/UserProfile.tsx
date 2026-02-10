@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import { authApi } from '@/features/auth/services/auth.api'
 import { useAuthStore } from '@/stores/auth-store'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -12,6 +13,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+
 
 const profileSchema = z.object({
     username: z
@@ -53,19 +55,37 @@ export function UserProfile() {
 
     const onSubmit = async (data: ProfileFormData) => {
         try {
-            // TODO: Call API to update user profile
-            // For now, just update local state
-            updateUser(data)
+            // Call API to update user profile
+            const updatedUser = await authApi.updateProfile(data)
+
+            // Update local state with response from server
+            updateUser({
+                username: updatedUser.username,
+                email: updatedUser.email,
+            })
 
             toast.success('Profile updated successfully', {
                 description: 'Your profile information has been saved',
             })
 
             setIsEditing(false)
-        } catch (error) {
-            toast.error('Failed to update profile', {
-                description: 'Please try again later',
-            })
+        } catch (error: any) {
+            // Handle specific errors from API
+            const errorMessage = error?.response?.data?.message || error?.message
+
+            if (errorMessage?.includes('Username') || errorMessage?.includes('username')) {
+                toast.error('Username already taken', {
+                    description: 'Please choose a different username',
+                })
+            } else if (errorMessage?.includes('Email') || errorMessage?.includes('email')) {
+                toast.error('Email already in use', {
+                    description: 'Please use a different email address',
+                })
+            } else {
+                toast.error('Failed to update profile', {
+                    description: errorMessage || 'Please try again later',
+                })
+            }
         }
     }
 
