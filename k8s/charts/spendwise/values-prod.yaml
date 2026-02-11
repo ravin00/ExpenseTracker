@@ -1,0 +1,31 @@
+# Production environment overrides
+environment: Production
+# Use managed DB in production (Azure/AWS/GCP)
+postgres:
+  enabled: false
+externalDatabase:
+  host: "spendwise-db.postgres.database.azure.com"
+  port: 5432
+  user: spendwise_admin
+authService:
+  replicas: 3
+  autoscaling:
+    minReplicas: 3
+    maxReplicas: 10
+expenseService:
+  replicas: 3
+  autoscaling:
+    minReplicas: 3
+    maxReplicas: 10
+analyticsService:
+  replicas: 3
+  autoscaling:
+    minReplicas: 3
+    maxReplicas: 8
+ingress:
+  host: api.spendwise.com
+  tls:
+    enabled: true
+    secretName: spendwise-tls-prod
+sealedSecrets:
+  enabled: true

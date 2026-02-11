@@ -1,0 +1,31 @@
+# Dev environment overrides
+environment: Development
+postgres:
+  enabled: true
+  storage: 2Gi
+authService:
+  replicas: 1
+  autoscaling:
+    enabled: false
+expenseService:
+  replicas: 1
+  autoscaling:
+    enabled: false
+categoryService:
+  replicas: 1
+  autoscaling:
+    enabled: false
+budgetService:
+  replicas: 1
+  autoscaling:
+    enabled: false
+savingsGoalService:
+  replicas: 1
+  autoscaling:
+    enabled: false
+analyticsService:
+  replicas: 1
+  autoscaling:
+    enabled: false
+ingress:
+  host: dev.spendwise.local

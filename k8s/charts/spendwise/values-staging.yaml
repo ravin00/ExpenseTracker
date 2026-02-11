@@ -1,0 +1,11 @@
+# Staging environment overrides
+environment: Staging
+postgres:
+  enabled: true
+  storage: 5Gi
+authService:
+  replicas: 2
+expenseService:
+  replicas: 2
+ingress:
+  host: staging.spendwise.local
