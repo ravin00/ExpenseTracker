@@ -28,4 +28,4 @@ ingress:
     enabled: true
     secretName: spendwise-tls-prod
 sealedSecrets:
-  enabled: true
+  enabled: false # Set to false if Sealed Secrets controller is not installed
