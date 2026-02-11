@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.budgetService.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.budgetService.name }}
+    {{- include "spendwise.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ .Values.budgetService.name }}
+  ports:
+  - port: 80
+    targetPort: {{ .Values.budgetService.port }}
+    protocol: TCP
+  type: ClusterIP

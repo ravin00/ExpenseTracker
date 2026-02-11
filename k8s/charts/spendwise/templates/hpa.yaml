@@ -1,0 +1,170 @@
+# ──────────────────────────────────────────
+# Auth Service HPA
+# ──────────────────────────────────────────
+{{- if .Values.authService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.authService.name }}-hpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.authService.name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.authService.name }}
+  minReplicas: {{ .Values.authService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.authService.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.authService.autoscaling.targetCPU }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+{{- end }}
+---
+# ──────────────────────────────────────────
+# Expense Service HPA
+# ──────────────────────────────────────────
+{{- if .Values.expenseService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.expenseService.name }}-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.expenseService.name }}
+  minReplicas: {{ .Values.expenseService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.expenseService.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.expenseService.autoscaling.targetCPU }}
+{{- end }}
+---
+# ──────────────────────────────────────────
+# Category Service HPA
+# ──────────────────────────────────────────
+{{- if .Values.categoryService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.categoryService.name }}-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.categoryService.name }}
+  minReplicas: {{ .Values.categoryService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.categoryService.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.categoryService.autoscaling.targetCPU }}
+{{- end }}
+---
+# ──────────────────────────────────────────
+# Budget Service HPA
+# ──────────────────────────────────────────
+{{- if .Values.budgetService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.budgetService.name }}-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.budgetService.name }}
+  minReplicas: {{ .Values.budgetService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.budgetService.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.budgetService.autoscaling.targetCPU }}
+{{- end }}
+---
+# ──────────────────────────────────────────
+# Savings Goal Service HPA
+# ──────────────────────────────────────────
+{{- if .Values.savingsGoalService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.savingsGoalService.name }}-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.savingsGoalService.name }}
+  minReplicas: {{ .Values.savingsGoalService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.savingsGoalService.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.savingsGoalService.autoscaling.targetCPU }}
+{{- end }}
+---
+# ──────────────────────────────────────────
+# Analytics Service HPA
+# ──────────────────────────────────────────
+{{- if .Values.analyticsService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.analyticsService.name }}-hpa
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.analyticsService.name }}
+  minReplicas: {{ .Values.analyticsService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.analyticsService.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.analyticsService.autoscaling.targetCPU }}
+{{- end }}

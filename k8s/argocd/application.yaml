@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spendwise
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ravin00/ExpenseTracker.git
+    targetRevision: feat/k8s-configuration
+    path: k8s/charts/spendwise
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-prod.yaml  # Change per environment
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: spendwise  # 📝 Change this to your desired namespace
+  syncPolicy:
+    automated:
+      prune: true        # Delete resources removed from Git
+      selfHeal: true     # Revert manual changes
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

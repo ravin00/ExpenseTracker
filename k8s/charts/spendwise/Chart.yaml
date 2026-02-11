@@ -1,0 +1,12 @@
+apiVersion: v2
+name: spendwise
+description: A Helm chart for SpendWise Expense Tracker microservices
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - microservices
+  - expense-tracker
+  - dotnet
+maintainers:
+  - name: Ravin Bandara
