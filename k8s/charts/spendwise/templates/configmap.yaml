@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spendwise-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "spendwise.labels" . | nindent 4 }}
+data:
+  ASPNETCORE_ENVIRONMENT: {{ .Values.environment | quote }}
+  DB_SERVER: {{ include "spendwise.dbHost" . | quote }}
+  DB_PORT: {{ include "spendwise.dbPort" . }}
+  DB_USER: {{ include "spendwise.dbUser" . | quote }}
+  AUTH_DB_NAME: {{ .Values.databases.auth | quote }}
+  EXPENSE_DB_NAME: {{ .Values.databases.expense | quote }}
+  CATEGORY_DB_NAME: {{ .Values.databases.category | quote }}
+  BUDGET_DB_NAME: {{ .Values.databases.budget | quote }}
+  SAVINGS_GOAL_DB_NAME: {{ .Values.databases.savingsGoal | quote }}
+  ANALYTICS_DB_NAME: {{ .Values.databases.analytics | quote }}
+  JWT_ISSUER: {{ .Values.jwt.issuer | quote }}
+  JWT_AUDIENCE: {{ .Values.jwt.audience | quote }}
