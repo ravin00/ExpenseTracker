@@ -205,6 +205,44 @@ jobs:
             Backend/SavingsGoalService/obj/
           retention-days: 1
 
+  # Build AnalyticsService
+  build-analytics-service:
+    name: Build AnalyticsService
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore Backend/AnalyticsService/AnalyticsService.csproj --verbosity detailed
+
+      - name: Build AnalyticsService
+        run: |
+          echo "Building AnalyticsService..."
+          dotnet build Backend/AnalyticsService/AnalyticsService.csproj --no-restore --configuration Release
+          echo "AnalyticsService build complete"
+
+      - name: Upload AnalyticsService artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: analytics-service-build
+          path: |
+            Backend/AnalyticsService/bin/
+            Backend/AnalyticsService/obj/
+          retention-days: 1
+
   # Unit Tests
   test:
     name: Run Tests
@@ -216,6 +254,7 @@ jobs:
         build-category-service,
         build-budget-service,
         build-savings-goal-service,
+        build-analytics-service,
       ]
     steps:
       - uses: actions/checkout@v4
@@ -288,6 +327,7 @@ jobs:
         build-category-service,
         build-budget-service,
         build-savings-goal-service,
+        build-analytics-service,
       ]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/fix/') || startsWith(github.ref, 'refs/heads/feat/')
     permissions:
@@ -309,6 +349,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: Backend/AuthService
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:auth-service-${{ github.sha }}
@@ -320,6 +361,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: Backend/ExpenseService
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:expense-service-${{ github.sha }}
@@ -331,6 +373,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: Backend/CategoryService
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:category-service-${{ github.sha }}
@@ -342,6 +385,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: Backend/BudgetService
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:budget-service-${{ github.sha }}
@@ -353,10 +397,23 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: Backend/SavingsGoalService
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:savings-goal-service-${{ github.sha }}
             ${{ env.IMAGE_NAME }}:savings-goal-service-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push AnalyticsService Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/AnalyticsService
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:analytics-service-${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:analytics-service-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
