@@ -14,14 +14,14 @@ spec:
     helm:
       valueFiles:
         - values.yaml
-        - values-prod.yaml  # Change per environment
+        - values-dev.yaml # Use dev values for Minikube
   destination:
     server: https://kubernetes.default.svc
-    namespace: spendwise  # 📝 Change this to your desired namespace
+    namespace: spendwise # 📝 Change this to your desired namespace
   syncPolicy:
     automated:
-      prune: true        # Delete resources removed from Git
-      selfHeal: true     # Revert manual changes
+      prune: true # Delete resources removed from Git
+      selfHeal: true # Revert manual changes
       allowEmpty: false
     syncOptions:
       - CreateNamespace=true
