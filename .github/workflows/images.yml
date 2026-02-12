@@ -1,0 +1,163 @@
+name: Build and Push Images
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: images-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_HUB_USERNAME: ravinbanda
+  IMAGE_NAME: ravinbanda/spendwise
+
+jobs:
+  detect-changes:
+    name: Detect Services For Image Build
+    runs-on: ubuntu-latest
+    outputs:
+      services_matrix: ${{ steps.set-matrix.outputs.services_matrix }}
+      has_services: ${{ steps.set-matrix.outputs.has_services }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect path changes
+        if: github.ref_type != 'tag'
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            shared:
+              - 'ExpenseTracker.sln'
+              - 'global.json'
+              - 'Directory.Build.*'
+              - 'NuGet.config'
+              - '.github/workflows/images.yml'
+            auth:
+              - 'Backend/AuthService/**'
+            expense:
+              - 'Backend/ExpenseService/**'
+            category:
+              - 'Backend/CategoryService/**'
+            budget:
+              - 'Backend/BudgetService/**'
+            savings_goal:
+              - 'Backend/SavingsGoalService/**'
+            analytics:
+              - 'Backend/AnalyticsService/**'
+
+      - name: Build image matrix
+        id: set-matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ALL='[
+            {"service":"auth-service","dir":"AuthService","tag":"auth-service"},
+            {"service":"expense-service","dir":"ExpenseService","tag":"expense-service"},
+            {"service":"category-service","dir":"CategoryService","tag":"category-service"},
+            {"service":"budget-service","dir":"BudgetService","tag":"budget-service"},
+            {"service":"savings-goal-service","dir":"SavingsGoalService","tag":"savings-goal-service"},
+            {"service":"analytics-service","dir":"AnalyticsService","tag":"analytics-service"}
+          ]'
+
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            MATRIX="$ALL"
+          elif [[ "${{ steps.filter.outputs.shared || 'false' }}" == "true" ]]; then
+            MATRIX="$ALL"
+          else
+            MATRIX=$(jq -nc \
+              --arg auth "${{ steps.filter.outputs.auth || 'false' }}" \
+              --arg expense "${{ steps.filter.outputs.expense || 'false' }}" \
+              --arg category "${{ steps.filter.outputs.category || 'false' }}" \
+              --arg budget "${{ steps.filter.outputs.budget || 'false' }}" \
+              --arg savings_goal "${{ steps.filter.outputs.savings_goal || 'false' }}" \
+              --arg analytics "${{ steps.filter.outputs.analytics || 'false' }}" \
+              '[
+                ($auth == "true" ? {"service":"auth-service","dir":"AuthService","tag":"auth-service"} : empty),
+                ($expense == "true" ? {"service":"expense-service","dir":"ExpenseService","tag":"expense-service"} : empty),
+                ($category == "true" ? {"service":"category-service","dir":"CategoryService","tag":"category-service"} : empty),
+                ($budget == "true" ? {"service":"budget-service","dir":"BudgetService","tag":"budget-service"} : empty),
+                ($savings_goal == "true" ? {"service":"savings-goal-service","dir":"SavingsGoalService","tag":"savings-goal-service"} : empty),
+                ($analytics == "true" ? {"service":"analytics-service","dir":"AnalyticsService","tag":"analytics-service"} : empty)
+              ]')
+          fi
+
+          if [[ "$MATRIX" == "[]" ]]; then
+            HAS_SERVICES=false
+          else
+            HAS_SERVICES=true
+          fi
+
+          echo "services_matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "has_services=$HAS_SERVICES" >> "$GITHUB_OUTPUT"
+
+  build-and-push:
+    name: Build and Push (${{ matrix.service.service }})
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_services == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute image tags
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "tags<<EOF"
+            echo "${IMAGE_NAME}:${{ matrix.service.tag }}-${GITHUB_SHA}"
+
+            if [[ "${GITHUB_REF_TYPE}" == "branch" && "${GITHUB_REF_NAME}" == "main" ]]; then
+              echo "${IMAGE_NAME}:${{ matrix.service.tag }}-latest"
+            fi
+
+            if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+              echo "${IMAGE_NAME}:${{ matrix.service.tag }}-${GITHUB_REF_NAME}"
+            fi
+
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend/${{ matrix.service.dir }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha,scope=${{ matrix.service.tag }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service.tag }}
+
+  no-image-changes:
+    name: No Image Changes
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_services != 'true'
+    steps:
+      - name: Skip
+        run: echo "No service changes detected for image build on this ref."
