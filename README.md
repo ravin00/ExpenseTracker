@@ -150,55 +150,55 @@ graph TB
      }'
    ```
 
-## 📚 API Documentation
+## API Documentation
 
 ### Authentication Endpoints
 
 | Method | Endpoint             | Description       | Auth Required |
 | ------ | -------------------- | ----------------- | ------------- |
-| POST   | `/api/auth/register` | Register new user | ❌            |
-| POST   | `/api/auth/login`    | User login        | ❌            |
-| GET    | `/api/auth/profile`  | Get user profile  | ✅            |
-| PUT    | `/api/auth/profile`  | Update profile    | ✅            |
-| POST   | `/api/auth/refresh`  | Refresh JWT token | ✅            |
+| POST   | `/api/auth/register` | Register new user | No            |
+| POST   | `/api/auth/login`    | User login        | No            |
+| GET    | `/api/auth/profile`  | Get user profile  | Yes           |
+| PUT    | `/api/auth/profile`  | Update profile    | Yes           |
+| POST   | `/api/auth/refresh`  | Refresh JWT token | Yes           |
 
 ### Expense Management
 
 | Method | Endpoint                  | Description            | Auth Required |
 | ------ | ------------------------- | ---------------------- | ------------- |
-| GET    | `/api/expense`            | List user expenses     | ✅            |
-| POST   | `/api/expense`            | Create new expense     | ✅            |
-| GET    | `/api/expense/{id}`       | Get expense details    | ✅            |
-| PUT    | `/api/expense/{id}`       | Update expense         | ✅            |
-| DELETE | `/api/expense/{id}`       | Delete expense         | ✅            |
-| GET    | `/api/expense/categories` | Get expense categories | ✅            |
+| GET    | `/api/expense`            | List user expenses     | Yes           |
+| POST   | `/api/expense`            | Create new expense     | Yes           |
+| GET    | `/api/expense/{id}`       | Get expense details    | Yes           |
+| PUT    | `/api/expense/{id}`       | Update expense         | Yes           |
+| DELETE | `/api/expense/{id}`       | Delete expense         | Yes           |
+| GET    | `/api/expense/categories` | Get expense categories | Yes           |
 
 ### Budget Management
 
 | Method | Endpoint                  | Description        | Auth Required |
 | ------ | ------------------------- | ------------------ | ------------- |
-| GET    | `/api/budget`             | List user budgets  | ✅            |
-| POST   | `/api/budget`             | Create budget      | ✅            |
-| GET    | `/api/budget/{id}`        | Get budget details | ✅            |
-| PUT    | `/api/budget/{id}`        | Update budget      | ✅            |
-| DELETE | `/api/budget/{id}`        | Delete budget      | ✅            |
-| GET    | `/api/budget/{id}/status` | Get budget status  | ✅            |
+| GET    | `/api/budget`             | List user budgets  | Yes           |
+| POST   | `/api/budget`             | Create budget      | Yes           |
+| GET    | `/api/budget/{id}`        | Get budget details | Yes           |
+| PUT    | `/api/budget/{id}`        | Update budget      | Yes           |
+| DELETE | `/api/budget/{id}`        | Delete budget      | Yes           |
+| GET    | `/api/budget/{id}/status` | Get budget status  | Yes           |
 
 ### Analytics & Reporting
 
 | Method | Endpoint                       | Description         | Auth Required |
 | ------ | ------------------------------ | ------------------- | ------------- |
-| GET    | `/api/analytics/dashboard`     | Financial dashboard | ✅            |
-| GET    | `/api/analytics/summary`       | Expense summary     | ✅            |
-| GET    | `/api/analytics/categories`    | Category breakdown  | ✅            |
-| GET    | `/api/analytics/trends`        | Spending trends     | ✅            |
-| GET    | `/api/analytics/health-status` | Financial health    | ✅            |
+| GET    | `/api/analytics/dashboard`     | Financial dashboard | Yes           |
+| GET    | `/api/analytics/summary`       | Expense summary     | Yes           |
+| GET    | `/api/analytics/categories`    | Category breakdown  | Yes           |
+| GET    | `/api/analytics/trends`        | Spending trends     | Yes           |
+| GET    | `/api/analytics/health-status` | Financial health    | Yes           |
 
 ### Interactive Documentation
 
 Access comprehensive API documentation with interactive testing:
 
-## 🛠️ Development
+## Development
 
 ### Local Development Setup
 
@@ -243,50 +243,57 @@ Access comprehensive API documentation with interactive testing:
 
 ### Project Structure
 
-```
+```text
 ExpenseTracker/
-├── Backend/                    # .NET microservices
-│   ├── AuthService/           # Authentication service
-│   ├── ExpenseService/        # Expense management
-│   ├── BudgetService/         # Budget management
-│   ├── AnalyticsService/      # Analytics & reporting
-│   └── Backend.sln            # Solution file
-├── Gateway/                   # Nginx configuration
-├── Tests/                     # Test projects
-├── Docs/                      # Documentation
-├── Scripts/                   # Deployment scripts
-├── docker-compose.yml         # Container orchestration
-├── docker-compose.override.yml # Development overrides
-└── README.md                  # This file
+|- Backend/                     # .NET microservices
+|  |- AuthService/              # Authentication service
+|  |- ExpenseService/           # Expense management
+|  |- BudgetService/            # Budget management
+|  |- AnalyticsService/         # Analytics and reporting
+|  `- Test/                     # Service test projects
+|- frontend/                    # Frontend application
+|- k8s/                         # Kubernetes manifests and Helm chart
+|- scripts/                     # Utility scripts
+|- docker-compose.yml           # Container orchestration
+`- README.md                    # This file
 ```
 
 ### Testing
 
 ```bash
 # Run all tests
-dotnet test Backend/Backend.sln
+dotnet test ExpenseTracker.sln
 
 # Run tests with coverage
 dotnet test --collect:"XPlat Code Coverage"
 
 # Run specific service tests
-dotnet test Backend/AuthService.Tests/
-dotnet test Backend/ExpenseService.Tests/
-dotnet test Backend/BudgetService.Tests/
-dotnet test Backend/AnalyticsService.Tests/
+dotnet test Backend/Test/AuthService.Tests/AuthService.Tests.csproj
+dotnet test Backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj
+dotnet test Backend/Test/BudgetService.Tests/BudgetService.Tests.csproj
+dotnet test Backend/Test/CategoryService.Tests/CategoryService.Tests.csproj
+dotnet test Backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj
+dotnet test Backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj
 ```
 
 ### Code Quality
 
 ```bash
 # Format code
-dotnet format Backend/Backend.sln
+dotnet format ExpenseTracker.sln
 
 # Static analysis
 dotnet build --verbosity normal
 ```
 
-## 🚀 Deployment
+### CI/CD Workflows
+
+- `ci-pr.yml`: Fast pull request checks. Builds, tests, and lints only changed services.
+- `images.yml`: Builds and pushes Docker images on `main` and version tags (`v*`).
+- `deploy.yml`: Deploys only after a successful `images.yml` workflow run on `main`.
+- `security.yml`: Nightly Trivy scan (scheduled) with manual trigger support.
+
+## Deployment
 
 ### Production Deployment
 
@@ -314,14 +321,14 @@ dotnet build --verbosity normal
 
 | Variable                 | Description            | Default              | Required |
 | ------------------------ | ---------------------- | -------------------- | -------- |
-| `DB_PASSWORD`            | Postgres SQL           | `ExpenseTracker123!` | ✅       |
-| `JWT_SECRET`             | JWT signing key        | Generated            | ✅       |
-| `ASPNETCORE_ENVIRONMENT` | Environment            | `Development`        | ✅       |
-| `AUTH_SERVICE_PORT`      | Auth service port      | `5001`               | ❌       |
-| `EXPENSE_SERVICE_PORT`   | Expense service port   | `5002`               | ❌       |
-| `BUDGET_SERVICE_PORT`    | Budget service port    | `5003`               | ❌       |
-| `ANALYTICS_SERVICE_PORT` | Analytics service port | `5004`               | ❌       |
-| `GATEWAY_PORT`           | API Gateway port       | `8080`               | ❌       |
+| `DB_PASSWORD`            | Postgres SQL           | `ExpenseTracker123!` | Yes      |
+| `JWT_SECRET`             | JWT signing key        | Generated            | Yes      |
+| `ASPNETCORE_ENVIRONMENT` | Environment            | `Development`        | Yes      |
+| `AUTH_SERVICE_PORT`      | Auth service port      | `5001`               | No       |
+| `EXPENSE_SERVICE_PORT`   | Expense service port   | `5002`               | No       |
+| `BUDGET_SERVICE_PORT`    | Budget service port    | `5003`               | No       |
+| `ANALYTICS_SERVICE_PORT` | Analytics service port | `5004`               | No       |
+| `GATEWAY_PORT`           | API Gateway port       | `8080`               | No       |
 
 ### Health Checks
 
@@ -348,14 +355,12 @@ Comprehensive documentation is available in the [`docs/`](docs/) folder:
 
 | Role                 | Recommended Starting Point                                                                                          |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **Developers**       | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) → [General Improvements](docs/IMPROVEMENTS.md)                |
-| **DevOps Engineers** | [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) → [ArgoCD Deployment](docs/ArgoCD-Deployment.md) |
-| **Security Teams**   | [Security Guide](docs/SECURITY.md) → [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)             |
-| **Project Managers** | [Documentation Index](docs/README.md) → [General Improvements](docs/IMPROVEMENTS.md)                                |
+| **Developers**       | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) -> [General Improvements](docs/IMPROVEMENTS.md)                |
+| **DevOps Engineers** | [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) -> [ArgoCD Deployment](docs/ArgoCD-Deployment.md) |
+| **Security Teams**   | [Security Guide](docs/SECURITY.md) -> [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)             |
+| **Project Managers** | [Documentation Index](docs/README.md) -> [General Improvements](docs/IMPROVEMENTS.md)                                |
 
-### 📈 Infrastructure Features
-
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
@@ -370,7 +375,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 4. **Add tests for your changes**
 5. **Ensure all tests pass**
    ```bash
-   dotnet test Backend/Backend.sln
+   dotnet test ExpenseTracker.sln
    ```
 6. **Commit with conventional commits**
    ```bash
