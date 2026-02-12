@@ -95,8 +95,12 @@ jobs:
             SHOULD_RUN=true
           fi
 
-          echo "services_matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-          echo "should_run=$SHOULD_RUN" >> "$GITHUB_OUTPUT"
+          {
+            echo "services_matrix<<EOF"
+            echo "$MATRIX"
+            echo "EOF"
+            echo "should_run=$SHOULD_RUN"
+          } >> "$GITHUB_OUTPUT"
 
   build-test-lint:
     name: Build, Test, Lint (${{ matrix.service.service }})
