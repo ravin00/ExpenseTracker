@@ -95,8 +95,12 @@ jobs:
             HAS_SERVICES=true
           fi
 
-          echo "services_matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-          echo "has_services=$HAS_SERVICES" >> "$GITHUB_OUTPUT"
+          {
+            echo "services_matrix<<EOF"
+            echo "$MATRIX"
+            echo "EOF"
+            echo "has_services=$HAS_SERVICES"
+          } >> "$GITHUB_OUTPUT"
 
   build-and-push:
     name: Build and Push (${{ matrix.service.service }})
