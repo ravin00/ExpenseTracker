@@ -11,12 +11,12 @@ namespace ExpenseService.Tests.ServiceTests
     public class ExpenseServiceTests
     {
         private readonly Mock<IExpenseRepository> _mockRepository;
-        private readonly ExpenseService.Services.ExpenseService _service;
+        private readonly ExpenseServiceImpl _service;
 
         public ExpenseServiceTests()
         {
             _mockRepository = new Mock<IExpenseRepository>();
-            _service = new ExpenseService.Services.ExpenseService(_mockRepository.Object);
+            _service = new ExpenseServiceImpl(_mockRepository.Object);
         }
 
         [Fact]
@@ -91,18 +91,13 @@ namespace ExpenseService.Tests.ServiceTests
         {
             // Arrange
             var userId = 1;
-            var dto = new ExpenseDto
+            var dto = new ExpenseCreateDto
             {
-                Id = 0,
-                UserId = userId,
                 Description = "New Expense",
                 Amount = 150m,
                 Date = DateTime.UtcNow,
                 Category = "Food",
-                Notes = "Test notes",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
+                Notes = "Test notes"
             };
 
             _mockRepository.Setup(r => r.AddAsync(It.IsAny<Expense>()))
@@ -171,18 +166,13 @@ namespace ExpenseService.Tests.ServiceTests
         {
             // Arrange
             var userId = 1;
-            var dto = new ExpenseDto
+            var dto = new ExpenseCreateDto
             {
-                Id = 0,
-                UserId = userId,
                 Description = "Grocery Shopping",
                 Amount = 75.50m,
                 Date = new DateTime(2024, 1, 15),
                 Category = "Food",
-                Notes = "Weekly groceries",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true
+                Notes = "Weekly groceries"
             };
 
             Expense? capturedExpense = null;
