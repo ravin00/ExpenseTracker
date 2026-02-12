@@ -5,7 +5,7 @@ global:
   image:
     registry: ravinbanda
     repository: spendwise
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
 # ──────────────────────────────────────────
 # PostgreSQL
 # ──────────────────────────────────────────

@@ -1,31 +1,80 @@
 # Dev environment overrides
 environment: Development
-postgres:
-  enabled: true
-  storage: 2Gi
+global:
+  image:
+    pullPolicy: IfNotPresent # Use local images if available
+
+# Reduce resource usage for local dev
 authService:
   replicas: 1
   autoscaling:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
 expenseService:
   replicas: 1
   autoscaling:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
 categoryService:
   replicas: 1
   autoscaling:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
 budgetService:
   replicas: 1
   autoscaling:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
 savingsGoalService:
   replicas: 1
   autoscaling:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
 analyticsService:
   replicas: 1
   autoscaling:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
 ingress:
   host: dev.spendwise.local

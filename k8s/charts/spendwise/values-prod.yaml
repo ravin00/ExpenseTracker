@@ -1,5 +1,8 @@
 # Production environment overrides
 environment: Production
+global:
+  image:
+    pullPolicy: Always
 # Use managed DB in production (Azure/AWS/GCP)
 postgres:
   enabled: false
