@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AnalyticsService\AnalyticsService.csproj" />
+    <ProjectReference Include="..\..\AnalyticsService\AnalyticsService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

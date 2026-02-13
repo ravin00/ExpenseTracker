@@ -66,17 +66,27 @@ spec:
           limits:
             cpu: {{ .Values.analyticsService.resources.limits.cpu }}
             memory: {{ .Values.analyticsService.resources.limits.memory }}
+        startupProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.analyticsService.port }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
         readinessProbe:
           httpGet:
             path: /health
             port: {{ .Values.analyticsService.port }}
-          initialDelaySeconds: 15
+          initialDelaySeconds: 20
           periodSeconds: 10
-          failureThreshold: 3
+          timeoutSeconds: 5
+          failureThreshold: 6
         livenessProbe:
           httpGet:
             path: /health
             port: {{ .Values.analyticsService.port }}
-          initialDelaySeconds: 30
-          periodSeconds: 15
-          failureThreshold: 3
+          initialDelaySeconds: 45
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 5

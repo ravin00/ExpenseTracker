@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BudgetService\BudgetService.csproj" />
+    <ProjectReference Include="..\..\BudgetService\BudgetService.csproj" />
   </ItemGroup>
 
 </Project>

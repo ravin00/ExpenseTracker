@@ -1,0 +1,143 @@
+name: CI PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "9.0.x"
+
+jobs:
+  detect-changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+    outputs:
+      services_matrix: ${{ steps.set-matrix.outputs.services_matrix }}
+      should_run: ${{ steps.set-matrix.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect path changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            shared:
+              - 'ExpenseTracker.sln'
+              - 'global.json'
+              - 'Directory.Build.*'
+              - 'NuGet.config'
+              - '.github/workflows/ci-pr.yml'
+            auth:
+              - 'Backend/AuthService/**'
+              - 'Backend/Test/AuthService.Tests/**'
+            expense:
+              - 'Backend/ExpenseService/**'
+              - 'Backend/Test/ExpenseService.Tests/**'
+            category:
+              - 'Backend/CategoryService/**'
+              - 'Backend/Test/CategoryService.Tests/**'
+            budget:
+              - 'Backend/BudgetService/**'
+              - 'Backend/Test/BudgetService.Tests/**'
+            savings_goal:
+              - 'Backend/SavingsGoalService/**'
+              - 'Backend/Test/SavingsGoalService.Tests/**'
+            analytics:
+              - 'Backend/AnalyticsService/**'
+              - 'Backend/Test/AnalyticsService.Tests/**'
+
+      - name: Build service matrix
+        id: set-matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ALL='[
+            {"service":"auth-service","service_dir":"AuthService","service_proj":"Backend/AuthService/AuthService.csproj","test_proj":"Backend/Test/AuthService.Tests/AuthService.Tests.csproj","lint_paths":"Backend/AuthService Backend/Test/AuthService.Tests"},
+            {"service":"expense-service","service_dir":"ExpenseService","service_proj":"Backend/ExpenseService/ExpenseService.csproj","test_proj":"Backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj","lint_paths":"Backend/ExpenseService Backend/Test/ExpenseService.Tests"},
+            {"service":"category-service","service_dir":"CategoryService","service_proj":"Backend/CategoryService/CategoryService.csproj","test_proj":"Backend/Test/CategoryService.Tests/CategoryService.Tests.csproj","lint_paths":"Backend/CategoryService Backend/Test/CategoryService.Tests"},
+            {"service":"budget-service","service_dir":"BudgetService","service_proj":"Backend/BudgetService/BudgetService.csproj","test_proj":"Backend/Test/BudgetService.Tests/BudgetService.Tests.csproj","lint_paths":"Backend/BudgetService Backend/Test/BudgetService.Tests"},
+            {"service":"savings-goal-service","service_dir":"SavingsGoalService","service_proj":"Backend/SavingsGoalService/SavingsGoalService.csproj","test_proj":"Backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj","lint_paths":"Backend/SavingsGoalService Backend/Test/SavingsGoalService.Tests"},
+            {"service":"analytics-service","service_dir":"AnalyticsService","service_proj":"Backend/AnalyticsService/AnalyticsService.csproj","test_proj":"Backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj","lint_paths":"Backend/AnalyticsService Backend/Test/AnalyticsService.Tests"}
+          ]'
+
+          if [[ "${{ steps.filter.outputs.shared }}" == "true" ]]; then
+            MATRIX="$ALL"
+          else
+            MATRIX=$(jq -nc \
+              --arg auth "${{ steps.filter.outputs.auth }}" \
+              --arg expense "${{ steps.filter.outputs.expense }}" \
+              --arg category "${{ steps.filter.outputs.category }}" \
+              --arg budget "${{ steps.filter.outputs.budget }}" \
+              --arg savings_goal "${{ steps.filter.outputs.savings_goal }}" \
+              --arg analytics "${{ steps.filter.outputs.analytics }}" \
+              '[
+                ($auth == "true" ? {"service":"auth-service","service_dir":"AuthService","service_proj":"Backend/AuthService/AuthService.csproj","test_proj":"Backend/Test/AuthService.Tests/AuthService.Tests.csproj","lint_paths":"Backend/AuthService Backend/Test/AuthService.Tests"} : empty),
+                ($expense == "true" ? {"service":"expense-service","service_dir":"ExpenseService","service_proj":"Backend/ExpenseService/ExpenseService.csproj","test_proj":"Backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj","lint_paths":"Backend/ExpenseService Backend/Test/ExpenseService.Tests"} : empty),
+                ($category == "true" ? {"service":"category-service","service_dir":"CategoryService","service_proj":"Backend/CategoryService/CategoryService.csproj","test_proj":"Backend/Test/CategoryService.Tests/CategoryService.Tests.csproj","lint_paths":"Backend/CategoryService Backend/Test/CategoryService.Tests"} : empty),
+                ($budget == "true" ? {"service":"budget-service","service_dir":"BudgetService","service_proj":"Backend/BudgetService/BudgetService.csproj","test_proj":"Backend/Test/BudgetService.Tests/BudgetService.Tests.csproj","lint_paths":"Backend/BudgetService Backend/Test/BudgetService.Tests"} : empty),
+                ($savings_goal == "true" ? {"service":"savings-goal-service","service_dir":"SavingsGoalService","service_proj":"Backend/SavingsGoalService/SavingsGoalService.csproj","test_proj":"Backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj","lint_paths":"Backend/SavingsGoalService Backend/Test/SavingsGoalService.Tests"} : empty),
+                ($analytics == "true" ? {"service":"analytics-service","service_dir":"AnalyticsService","service_proj":"Backend/AnalyticsService/AnalyticsService.csproj","test_proj":"Backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj","lint_paths":"Backend/AnalyticsService Backend/Test/AnalyticsService.Tests"} : empty)
+              ]')
+          fi
+
+          if [[ "$MATRIX" == "[]" ]]; then
+            SHOULD_RUN=false
+          else
+            SHOULD_RUN=true
+          fi
+
+          {
+            echo "services_matrix<<EOF"
+            echo "$MATRIX"
+            echo "EOF"
+            echo "should_run=$SHOULD_RUN"
+          } >> "$GITHUB_OUTPUT"
+
+  build-test-lint:
+    name: Build, Test, Lint (${{ matrix.service.service }})
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.should_run == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services_matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore service
+        run: dotnet restore ${{ matrix.service.service_proj }} --verbosity minimal
+
+      - name: Build service
+        run: dotnet build ${{ matrix.service.service_proj }} --configuration Release --no-restore --verbosity minimal
+
+      - name: Run tests
+        run: dotnet test ${{ matrix.service.test_proj }} --configuration Release --verbosity minimal
+
+      - name: Lint formatting
+        run: dotnet format ExpenseTracker.sln --verify-no-changes --include ${{ matrix.service.lint_paths }} --verbosity minimal
+
+  no-changes:
+    name: No Service Changes
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.should_run != 'true'
+    steps:
+      - name: Skip
+        run: echo "No service/backend changes detected; skipping service CI jobs."

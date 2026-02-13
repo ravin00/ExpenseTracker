@@ -350,7 +350,7 @@ namespace BudgetService.Tests.ModelTests
             {
                 Name = "Test",
                 Amount = 1000m,
-                EndDate = daysFromNow > 0 ? DateTime.UtcNow.AddDays(daysFromNow) : null
+                EndDate = daysFromNow > 0 ? DateTime.UtcNow.AddDays(daysFromNow).AddHours(12) : null
             };
 
             // Act
