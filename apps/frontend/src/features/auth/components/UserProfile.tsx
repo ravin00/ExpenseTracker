@@ -25,6 +25,26 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>
 
+function getErrorMessage(error: unknown): string | null {
+    if (error instanceof Error && error.message) {
+        return error.message
+    }
+
+    if (
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: unknown }).response === 'object'
+    ) {
+        const response = (error as { response?: { data?: { message?: unknown } } }).response
+        if (response?.data?.message && typeof response.data.message === 'string') {
+            return response.data.message
+        }
+    }
+
+    return null
+}
+
 export function UserProfile() {
     const { user, logout } = useAuth()
     const updateUser = useAuthStore((state) => state.updateUser)
@@ -69,9 +89,8 @@ export function UserProfile() {
             })
 
             setIsEditing(false)
-        } catch (error: any) {
-            // Handle specific errors from API
-            const errorMessage = error?.response?.data?.message || error?.message
+        } catch (error: unknown) {
+            const errorMessage = getErrorMessage(error)
 
             if (errorMessage?.includes('Username') || errorMessage?.includes('username')) {
                 toast.error('Username already taken', {

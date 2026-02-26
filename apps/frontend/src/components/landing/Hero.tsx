@@ -1,6 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Play, Shield, Sparkles, TrendingUp, Zap } from 'lucide-react';
 
+const HERO_PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+    left: (i * 29) % 100,
+    top: (i * 41) % 100,
+    delay: i * 0.3,
+    duration: 4 + (i % 5),
+}));
+
 export function Hero() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
@@ -25,15 +32,15 @@ export function Hero() {
 
                 {/* Floating Particles */}
                 <div className="absolute inset-0 overflow-hidden">
-                    {[...Array(20)].map((_, i) => (
+                    {HERO_PARTICLES.map((particle, i) => (
                         <div
                             key={i}
                             className="absolute w-1 h-1 bg-blue-500/40 rounded-full animate-float"
                             style={{
-                                left: `${Math.random() * 100}%`,
-                                top: `${Math.random() * 100}%`,
-                                animationDelay: `${i * 0.3}s`,
-                                animationDuration: `${4 + Math.random() * 4}s`,
+                                left: `${particle.left}%`,
+                                top: `${particle.top}%`,
+                                animationDelay: `${particle.delay}s`,
+                                animationDuration: `${particle.duration}s`,
                             }}
                         />
                     ))}

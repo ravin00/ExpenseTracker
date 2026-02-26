@@ -1,7 +1,7 @@
 interface JwtPayload {
     exp: number
     iat: number
-    [key: string]: any
+    [key: string]: unknown
 }
 
 export function decodeJwt(token: string): JwtPayload | null {

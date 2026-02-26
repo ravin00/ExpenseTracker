@@ -4,7 +4,7 @@
 export function useRegister() {
     // TODO: Implement register mutation
     return {
-        register: async (_data: { email: string; password: string; username: string }) => { },
+        register: async () => undefined,
         isLoading: false,
         error: null,
     }

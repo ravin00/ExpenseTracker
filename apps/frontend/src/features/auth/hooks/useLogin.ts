@@ -4,7 +4,7 @@
 export function useLogin() {
     // TODO: Implement login mutation
     return {
-        login: async (_email: string, _password: string) => { },
+        login: async () => undefined,
         isLoading: false,
         error: null,
     }
