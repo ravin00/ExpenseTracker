@@ -24,7 +24,7 @@ for i in "${!services[@]}"; do
   echo "--------------------------------------------------"
   
   # Navigate to backend directory or adjust path
-  docker build -t $IMAGE_NAME -f "$PROJECT_ROOT/Backend/$SERVICE_DIR/Dockerfile" "$PROJECT_ROOT/Backend/$SERVICE_DIR"
+  docker build -t $IMAGE_NAME -f "$PROJECT_ROOT/apps/backend/$SERVICE_DIR/Dockerfile" "$PROJECT_ROOT/apps/backend/$SERVICE_DIR"
   
   echo "Pushing $IMAGE_NAME"
   docker push $IMAGE_NAME

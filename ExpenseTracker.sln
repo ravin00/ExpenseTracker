@@ -5,17 +5,17 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "Backend\AuthService\AuthService.csproj", "{40601A8A-D13D-4E41-B97C-3E2CA8FFCFDA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "apps\backend\AuthService\AuthService.csproj", "{40601A8A-D13D-4E41-B97C-3E2CA8FFCFDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseService", "Backend\ExpenseService\ExpenseService.csproj", "{72CEB9B0-3256-4B01-9921-7E36816DC75A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseService", "apps\backend\ExpenseService\ExpenseService.csproj", "{72CEB9B0-3256-4B01-9921-7E36816DC75A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CategoryService", "Backend\CategoryService\CategoryService.csproj", "{A8C9D4B2-E5F3-4A7B-9D2E-6F8A1B3C5D4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CategoryService", "apps\backend\CategoryService\CategoryService.csproj", "{A8C9D4B2-E5F3-4A7B-9D2E-6F8A1B3C5D4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetService", "Backend\BudgetService\BudgetService.csproj", "{C7A4B8E9-F6D2-4E8C-9A1B-3D5E7F9C2A6B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetService", "apps\backend\BudgetService\BudgetService.csproj", "{C7A4B8E9-F6D2-4E8C-9A1B-3D5E7F9C2A6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SavingsGoalService", "Backend\SavingsGoalService\SavingsGoalService.csproj", "{F3B7A5E1-D8C4-4F2A-8B9E-1A6C7E5D3F9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SavingsGoalService", "apps\backend\SavingsGoalService\SavingsGoalService.csproj", "{F3B7A5E1-D8C4-4F2A-8B9E-1A6C7E5D3F9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsService", "Backend\AnalyticsService\AnalyticsService.csproj", "{C1E849A3-7516-40D6-AD0C-E3DACCFBC216}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyticsService", "apps\backend\AnalyticsService\AnalyticsService.csproj", "{C1E849A3-7516-40D6-AD0C-E3DACCFBC216}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

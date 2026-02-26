@@ -33,7 +33,7 @@ for service in "${SERVICES[@]}"; do
     esac
     
     # Build the image
-    docker build -t "$REGISTRY/$service:$TAG" -t "$REGISTRY/$service:$GIT_COMMIT" "Backend/$dir"
+    docker build -t "$REGISTRY/$service:$TAG" -t "$REGISTRY/$service:$GIT_COMMIT" "apps/backend/$dir"
     
     echo "Pushing $service..."
     docker push "$REGISTRY/$service:$TAG"
