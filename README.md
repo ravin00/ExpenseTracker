@@ -225,19 +225,19 @@ Access comprehensive API documentation with interactive testing:
 
    ```bash
    # Auth Service
-   cd Backend/AuthService
+   cd apps/backend/AuthService
    dotnet run
 
    # Expense Service
-   cd Backend/ExpenseService
+   cd apps/backend/ExpenseService
    dotnet run
 
    # Budget Service
-   cd Backend/BudgetService
+   cd apps/backend/BudgetService
    dotnet run
 
    # Analytics Service
-   cd Backend/AnalyticsService
+   cd apps/backend/AnalyticsService
    dotnet run
    ```
 
@@ -245,14 +245,14 @@ Access comprehensive API documentation with interactive testing:
 
 ```text
 ExpenseTracker/
-|- Backend/                     # .NET microservices
+|- apps/backend/                # .NET microservices
 |  |- AuthService/              # Authentication service
 |  |- ExpenseService/           # Expense management
 |  |- BudgetService/            # Budget management
 |  |- AnalyticsService/         # Analytics and reporting
 |  `- Test/                     # Service test projects
-|- frontend/                    # Frontend application
-|- k8s/                         # Kubernetes manifests and Helm chart
+|- apps/frontend/               # Frontend application
+|- infra/k8s/                   # Kubernetes manifests and Helm chart
 |- scripts/                     # Utility scripts
 |- docker-compose.yml           # Container orchestration
 `- README.md                    # This file
@@ -268,12 +268,12 @@ dotnet test ExpenseTracker.sln
 dotnet test --collect:"XPlat Code Coverage"
 
 # Run specific service tests
-dotnet test Backend/Test/AuthService.Tests/AuthService.Tests.csproj
-dotnet test Backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj
-dotnet test Backend/Test/BudgetService.Tests/BudgetService.Tests.csproj
-dotnet test Backend/Test/CategoryService.Tests/CategoryService.Tests.csproj
-dotnet test Backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj
-dotnet test Backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj
+dotnet test apps/backend/Test/AuthService.Tests/AuthService.Tests.csproj
+dotnet test apps/backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj
+dotnet test apps/backend/Test/BudgetService.Tests/BudgetService.Tests.csproj
+dotnet test apps/backend/Test/CategoryService.Tests/CategoryService.Tests.csproj
+dotnet test apps/backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj
+dotnet test apps/backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj
 ```
 
 ### Code Quality
