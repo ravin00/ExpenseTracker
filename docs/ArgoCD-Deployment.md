@@ -46,7 +46,7 @@ export DEFAULT_REPO=your-registry.com/expensetracker
 skaffold build --profile=argocd
 
 # Option 3: Manual build (example for one service)
-docker build -t your-registry.com/expensetracker/auth-service:latest Backend/AuthService
+docker build -t your-registry.com/expensetracker/auth-service:latest apps/backend/AuthService
 docker push your-registry.com/expensetracker/auth-service:latest
 ```
 
@@ -55,7 +55,7 @@ docker push your-registry.com/expensetracker/auth-service:latest
 Update your service manifests to use the pushed images:
 
 ```yaml
-# In Infrastructure/Kubernetes/services.yaml
+# In infra/k8s/charts/spendwise/templates/* (or values files)
 containers:
 - name: auth-service
   image: your-registry.com/expensetracker/auth-service:latest
@@ -67,14 +67,7 @@ containers:
 
 ```bash
 # Apply the ArgoCD Application
-kubectl apply -f Infrastructure/Kubernetes/argoCD.yaml
-```
-
-#### Option B: Deploy ApplicationSet (Multiple Environments)
-
-```bash
-# Apply the ArgoCD ApplicationSet
-kubectl apply -f Infrastructure/Kubernetes/applicationSet.yaml
+kubectl apply -f infra/k8s/argocd/application.yaml
 ```
 
 ### Step 6: Monitor Deployment
@@ -189,8 +182,8 @@ kubectl logs -f deployment/auth-service -n expensetracker
 kubectl scale deployment auth-service --replicas=2 -n expensetracker
 
 # Delete and recreate application
-kubectl delete -f Infrastructure/Kubernetes/argoCD.yaml
-kubectl apply -f Infrastructure/Kubernetes/argoCD.yaml
+kubectl delete -f infra/k8s/argocd/application.yaml
+kubectl apply -f infra/k8s/argocd/application.yaml
 ```
 
 ## Security Notes

@@ -16,26 +16,26 @@ sleep 2
 
 echo "Starting all ExpenseTracker services..."
 
-# Get the base directory
-BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Resolve repository root (script lives under scripts/)
+BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Start each service in background with proper directory context
-(cd "$BASE_DIR/Backend/AuthService" && dotnet run) &
+(cd "$BASE_DIR/apps/backend/AuthService" && dotnet run) &
 AUTH_PID=$!
 
-(cd "$BASE_DIR/Backend/ExpenseService" && dotnet run) &
+(cd "$BASE_DIR/apps/backend/ExpenseService" && dotnet run) &
 EXPENSE_PID=$!
 
-(cd "$BASE_DIR/Backend/CategoryService" && dotnet run) &
+(cd "$BASE_DIR/apps/backend/CategoryService" && dotnet run) &
 CATEGORY_PID=$!
 
-(cd "$BASE_DIR/Backend/BudgetService" && dotnet run) &
+(cd "$BASE_DIR/apps/backend/BudgetService" && dotnet run) &
 BUDGET_PID=$!
 
-(cd "$BASE_DIR/Backend/SavingsGoalService" && dotnet run) &
+(cd "$BASE_DIR/apps/backend/SavingsGoalService" && dotnet run) &
 SAVINGS_PID=$!
 
-(cd "$BASE_DIR/Backend/AnalyticsService" && dotnet run) &
+(cd "$BASE_DIR/apps/backend/AnalyticsService" && dotnet run) &
 ANALYTICS_PID=$!
 
 echo "All services started!"

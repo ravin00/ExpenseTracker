@@ -27,42 +27,42 @@
 ### Local Development (Minikube)
 
     minikube start
-    helm install spendwise ./k8s/charts/spendwise -f k8s/charts/spendwise/values-dev.yaml
+    helm install spendwise ./infra/k8s/charts/spendwise -f infra/k8s/charts/spendwise/values-dev.yaml
 
 ### Staging
 
-    helm install spendwise ./k8s/charts/spendwise -f k8s/charts/spendwise/values-staging.yaml
+    helm install spendwise ./infra/k8s/charts/spendwise -f infra/k8s/charts/spendwise/values-staging.yaml
 
 ### Production (with ArgoCD)
 
-    kubectl apply -f k8s/argocd/application.yaml
+    kubectl apply -f infra/k8s/argocd/application.yaml
 
 ## Commands
 
 | Action    | Command                                                   |
 | --------- | --------------------------------------------------------- |
-| Install   | `helm install spendwise ./k8s/charts/spendwise`           |
-| Upgrade   | `helm upgrade spendwise ./k8s/charts/spendwise`           |
+| Install   | `helm install spendwise ./infra/k8s/charts/spendwise`           |
+| Upgrade   | `helm upgrade spendwise ./infra/k8s/charts/spendwise`           |
 | Rollback  | `helm rollback spendwise 1`                               |
 | Uninstall | `helm uninstall spendwise`                                |
-| Dry run   | `helm install spendwise ./k8s/charts/spendwise --dry-run` |
-| Template  | `helm template spendwise ./k8s/charts/spendwise`          |
+| Dry run   | `helm install spendwise ./infra/k8s/charts/spendwise --dry-run` |
+| Template  | `helm template spendwise ./infra/k8s/charts/spendwise`          |
 
 🚀 Deployment Commands
 
 ```bash
 # Dev (Minikube) - Deploys to 'spendwise-dev' namespace
-helm install spendwise ./k8s/charts/spendwise \
+helm install spendwise ./infra/k8s/charts/spendwise \
   -n spendwise-dev --create-namespace \
-  -f ./k8s/charts/spendwise/values-dev.yaml
+  -f ./infra/k8s/charts/spendwise/values-dev.yaml
 
 # Staging - Deploys to 'spendwise-staging' namespace
-helm upgrade --install spendwise ./k8s/charts/spendwise \
+helm upgrade --install spendwise ./infra/k8s/charts/spendwise \
   -n spendwise-staging --create-namespace \
-  -f ./k8s/charts/spendwise/values-staging.yaml
+  -f ./infra/k8s/charts/spendwise/values-staging.yaml
 
 # Production (via ArgoCD — auto-syncs from Git)
-kubectl apply -f k8s/argocd/application.yaml
+kubectl apply -f infra/k8s/argocd/application.yaml
 ```
 
 ## 🕵️‍♂️ Verifying with ArgoCD

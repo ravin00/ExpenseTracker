@@ -37,17 +37,15 @@ Welcome to the ExpenseTracker documentation. This folder contains comprehensive 
 
 ```
 ExpenseTracker/
-├── Backend/                    # .NET microservices
+├── apps/backend/                    # .NET microservices
 │   ├── AuthService/           # Authentication & authorization
 │   ├── ExpenseService/        # Expense management
 │   ├── CategoryService/       # Category management
 │   ├── BudgetService/         # Budget tracking
 │   ├── SavingsGoalService/    # Savings goals
 │   └── AnalyticsService/      # Analytics & reporting
-├── Infrastructure/            # Deployment configurations
-│   ├── Docker/               # Docker Compose setups
-│   ├── Kubernetes/           # Kubernetes manifests
-│   └── Monitoring/           # Prometheus & Grafana configs
+├── infra/                    # Deployment configurations
+│   └── k8s/                  # Kubernetes manifests and Helm chart
 ├── docs/                     # Documentation (this folder)
 └── scripts/                  # Automation scripts
 ```

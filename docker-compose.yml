@@ -25,7 +25,7 @@ services:
   # Auth Service
   auth-service:
     build:
-      context: ./Backend/AuthService
+      context: ./apps/backend/AuthService
       dockerfile: Dockerfile
     container_name: expensetracker-auth
     environment:
@@ -46,7 +46,7 @@ services:
   # Expense Service
   expense-service:
     build:
-      context: ./Backend/ExpenseService
+      context: ./apps/backend/ExpenseService
       dockerfile: Dockerfile
     container_name: expensetracker-expense
     environment:
@@ -68,7 +68,7 @@ services:
   # Analytics Service
   analytics-service:
     build:
-      context: ./Backend/AnalyticsService
+      context: ./apps/backend/AnalyticsService
       dockerfile: Dockerfile
     container_name: expensetracker-analytics
     environment:
@@ -92,7 +92,7 @@ services:
   # Budget Service
   budget-service:
     build:
-      context: ./Backend/BudgetService
+      context: ./apps/backend/BudgetService
       dockerfile: Dockerfile
     container_name: expensetracker-budget
     environment:
@@ -113,7 +113,7 @@ services:
   # Category Service
   category-service:
     build:
-      context: ./Backend/CategoryService
+      context: ./apps/backend/CategoryService
       dockerfile: Dockerfile
     container_name: expensetracker-category
     environment:
@@ -134,7 +134,7 @@ services:
   # Savings Goal Service
   savings-goal-service:
     build:
-      context: ./Backend/SavingsGoalService
+      context: ./apps/backend/SavingsGoalService
       dockerfile: Dockerfile
     container_name: expensetracker-savingsgoal
     environment:

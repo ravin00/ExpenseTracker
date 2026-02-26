@@ -18,7 +18,7 @@
       "type": "shell",
       "command": "dotnet run",
       "options": {
-        "cwd": "${workspaceFolder}/Backend/AuthService"
+        "cwd": "${workspaceFolder}/apps/backend/AuthService"
       },
       "isBackground": true,
       "problemMatcher": {
@@ -40,7 +40,7 @@
       "type": "shell",
       "command": "dotnet run",
       "options": {
-        "cwd": "${workspaceFolder}/Backend/ExpenseService"
+        "cwd": "${workspaceFolder}/apps/backend/ExpenseService"
       },
       "isBackground": true,
       "problemMatcher": {
@@ -62,7 +62,7 @@
       "type": "shell",
       "command": "dotnet run",
       "options": {
-        "cwd": "${workspaceFolder}/Backend/CategoryService"
+        "cwd": "${workspaceFolder}/apps/backend/CategoryService"
       },
       "isBackground": true,
       "problemMatcher": {
@@ -84,7 +84,7 @@
       "type": "shell",
       "command": "dotnet run",
       "options": {
-        "cwd": "${workspaceFolder}/Backend/BudgetService"
+        "cwd": "${workspaceFolder}/apps/backend/BudgetService"
       },
       "isBackground": true,
       "problemMatcher": {
@@ -106,7 +106,7 @@
       "type": "shell",
       "command": "dotnet run",
       "options": {
-        "cwd": "${workspaceFolder}/Backend/SavingsGoalService"
+        "cwd": "${workspaceFolder}/apps/backend/SavingsGoalService"
       },
       "isBackground": true,
       "problemMatcher": {
@@ -128,7 +128,7 @@
       "type": "shell",
       "command": "dotnet run",
       "options": {
-        "cwd": "${workspaceFolder}/Backend/AnalyticsService"
+        "cwd": "${workspaceFolder}/apps/backend/AnalyticsService"
       },
       "isBackground": true,
       "problemMatcher": {
