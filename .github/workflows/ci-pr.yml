@@ -36,23 +36,23 @@ jobs:
               - 'NuGet.config'
               - '.github/workflows/ci-pr.yml'
             auth:
-              - 'Backend/AuthService/**'
-              - 'Backend/Test/AuthService.Tests/**'
+              - 'apps/backend/AuthService/**'
+              - 'apps/backend/Test/AuthService.Tests/**'
             expense:
-              - 'Backend/ExpenseService/**'
-              - 'Backend/Test/ExpenseService.Tests/**'
+              - 'apps/backend/ExpenseService/**'
+              - 'apps/backend/Test/ExpenseService.Tests/**'
             category:
-              - 'Backend/CategoryService/**'
-              - 'Backend/Test/CategoryService.Tests/**'
+              - 'apps/backend/CategoryService/**'
+              - 'apps/backend/Test/CategoryService.Tests/**'
             budget:
-              - 'Backend/BudgetService/**'
-              - 'Backend/Test/BudgetService.Tests/**'
+              - 'apps/backend/BudgetService/**'
+              - 'apps/backend/Test/BudgetService.Tests/**'
             savings_goal:
-              - 'Backend/SavingsGoalService/**'
-              - 'Backend/Test/SavingsGoalService.Tests/**'
+              - 'apps/backend/SavingsGoalService/**'
+              - 'apps/backend/Test/SavingsGoalService.Tests/**'
             analytics:
-              - 'Backend/AnalyticsService/**'
-              - 'Backend/Test/AnalyticsService.Tests/**'
+              - 'apps/backend/AnalyticsService/**'
+              - 'apps/backend/Test/AnalyticsService.Tests/**'
 
       - name: Build service matrix
         id: set-matrix
@@ -61,12 +61,12 @@ jobs:
           set -euo pipefail
 
           ALL='[
-            {"service":"auth-service","service_dir":"AuthService","service_proj":"Backend/AuthService/AuthService.csproj","test_proj":"Backend/Test/AuthService.Tests/AuthService.Tests.csproj","lint_paths":"Backend/AuthService Backend/Test/AuthService.Tests"},
-            {"service":"expense-service","service_dir":"ExpenseService","service_proj":"Backend/ExpenseService/ExpenseService.csproj","test_proj":"Backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj","lint_paths":"Backend/ExpenseService Backend/Test/ExpenseService.Tests"},
-            {"service":"category-service","service_dir":"CategoryService","service_proj":"Backend/CategoryService/CategoryService.csproj","test_proj":"Backend/Test/CategoryService.Tests/CategoryService.Tests.csproj","lint_paths":"Backend/CategoryService Backend/Test/CategoryService.Tests"},
-            {"service":"budget-service","service_dir":"BudgetService","service_proj":"Backend/BudgetService/BudgetService.csproj","test_proj":"Backend/Test/BudgetService.Tests/BudgetService.Tests.csproj","lint_paths":"Backend/BudgetService Backend/Test/BudgetService.Tests"},
-            {"service":"savings-goal-service","service_dir":"SavingsGoalService","service_proj":"Backend/SavingsGoalService/SavingsGoalService.csproj","test_proj":"Backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj","lint_paths":"Backend/SavingsGoalService Backend/Test/SavingsGoalService.Tests"},
-            {"service":"analytics-service","service_dir":"AnalyticsService","service_proj":"Backend/AnalyticsService/AnalyticsService.csproj","test_proj":"Backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj","lint_paths":"Backend/AnalyticsService Backend/Test/AnalyticsService.Tests"}
+            {"service":"auth-service","service_dir":"AuthService","service_proj":"apps/backend/AuthService/AuthService.csproj","test_proj":"apps/backend/Test/AuthService.Tests/AuthService.Tests.csproj","lint_paths":"apps/backend/AuthService apps/backend/Test/AuthService.Tests"},
+            {"service":"expense-service","service_dir":"ExpenseService","service_proj":"apps/backend/ExpenseService/ExpenseService.csproj","test_proj":"apps/backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj","lint_paths":"apps/backend/ExpenseService apps/backend/Test/ExpenseService.Tests"},
+            {"service":"category-service","service_dir":"CategoryService","service_proj":"apps/backend/CategoryService/CategoryService.csproj","test_proj":"apps/backend/Test/CategoryService.Tests/CategoryService.Tests.csproj","lint_paths":"apps/backend/CategoryService apps/backend/Test/CategoryService.Tests"},
+            {"service":"budget-service","service_dir":"BudgetService","service_proj":"apps/backend/BudgetService/BudgetService.csproj","test_proj":"apps/backend/Test/BudgetService.Tests/BudgetService.Tests.csproj","lint_paths":"apps/backend/BudgetService apps/backend/Test/BudgetService.Tests"},
+            {"service":"savings-goal-service","service_dir":"SavingsGoalService","service_proj":"apps/backend/SavingsGoalService/SavingsGoalService.csproj","test_proj":"apps/backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj","lint_paths":"apps/backend/SavingsGoalService apps/backend/Test/SavingsGoalService.Tests"},
+            {"service":"analytics-service","service_dir":"AnalyticsService","service_proj":"apps/backend/AnalyticsService/AnalyticsService.csproj","test_proj":"apps/backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj","lint_paths":"apps/backend/AnalyticsService apps/backend/Test/AnalyticsService.Tests"}
           ]'
 
           if [[ "${{ steps.filter.outputs.shared }}" == "true" ]]; then
@@ -80,12 +80,12 @@ jobs:
               --arg savings_goal "${{ steps.filter.outputs.savings_goal }}" \
               --arg analytics "${{ steps.filter.outputs.analytics }}" \
               '[
-                ($auth == "true" ? {"service":"auth-service","service_dir":"AuthService","service_proj":"Backend/AuthService/AuthService.csproj","test_proj":"Backend/Test/AuthService.Tests/AuthService.Tests.csproj","lint_paths":"Backend/AuthService Backend/Test/AuthService.Tests"} : empty),
-                ($expense == "true" ? {"service":"expense-service","service_dir":"ExpenseService","service_proj":"Backend/ExpenseService/ExpenseService.csproj","test_proj":"Backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj","lint_paths":"Backend/ExpenseService Backend/Test/ExpenseService.Tests"} : empty),
-                ($category == "true" ? {"service":"category-service","service_dir":"CategoryService","service_proj":"Backend/CategoryService/CategoryService.csproj","test_proj":"Backend/Test/CategoryService.Tests/CategoryService.Tests.csproj","lint_paths":"Backend/CategoryService Backend/Test/CategoryService.Tests"} : empty),
-                ($budget == "true" ? {"service":"budget-service","service_dir":"BudgetService","service_proj":"Backend/BudgetService/BudgetService.csproj","test_proj":"Backend/Test/BudgetService.Tests/BudgetService.Tests.csproj","lint_paths":"Backend/BudgetService Backend/Test/BudgetService.Tests"} : empty),
-                ($savings_goal == "true" ? {"service":"savings-goal-service","service_dir":"SavingsGoalService","service_proj":"Backend/SavingsGoalService/SavingsGoalService.csproj","test_proj":"Backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj","lint_paths":"Backend/SavingsGoalService Backend/Test/SavingsGoalService.Tests"} : empty),
-                ($analytics == "true" ? {"service":"analytics-service","service_dir":"AnalyticsService","service_proj":"Backend/AnalyticsService/AnalyticsService.csproj","test_proj":"Backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj","lint_paths":"Backend/AnalyticsService Backend/Test/AnalyticsService.Tests"} : empty)
+                ($auth == "true" ? {"service":"auth-service","service_dir":"AuthService","service_proj":"apps/backend/AuthService/AuthService.csproj","test_proj":"apps/backend/Test/AuthService.Tests/AuthService.Tests.csproj","lint_paths":"apps/backend/AuthService apps/backend/Test/AuthService.Tests"} : empty),
+                ($expense == "true" ? {"service":"expense-service","service_dir":"ExpenseService","service_proj":"apps/backend/ExpenseService/ExpenseService.csproj","test_proj":"apps/backend/Test/ExpenseService.Tests/ExpenseService.Tests.csproj","lint_paths":"apps/backend/ExpenseService apps/backend/Test/ExpenseService.Tests"} : empty),
+                ($category == "true" ? {"service":"category-service","service_dir":"CategoryService","service_proj":"apps/backend/CategoryService/CategoryService.csproj","test_proj":"apps/backend/Test/CategoryService.Tests/CategoryService.Tests.csproj","lint_paths":"apps/backend/CategoryService apps/backend/Test/CategoryService.Tests"} : empty),
+                ($budget == "true" ? {"service":"budget-service","service_dir":"BudgetService","service_proj":"apps/backend/BudgetService/BudgetService.csproj","test_proj":"apps/backend/Test/BudgetService.Tests/BudgetService.Tests.csproj","lint_paths":"apps/backend/BudgetService apps/backend/Test/BudgetService.Tests"} : empty),
+                ($savings_goal == "true" ? {"service":"savings-goal-service","service_dir":"SavingsGoalService","service_proj":"apps/backend/SavingsGoalService/SavingsGoalService.csproj","test_proj":"apps/backend/Test/SavingsGoalService.Tests/SavingsGoalService.Tests.csproj","lint_paths":"apps/backend/SavingsGoalService apps/backend/Test/SavingsGoalService.Tests"} : empty),
+                ($analytics == "true" ? {"service":"analytics-service","service_dir":"AnalyticsService","service_proj":"apps/backend/AnalyticsService/AnalyticsService.csproj","test_proj":"apps/backend/Test/AnalyticsService.Tests/AnalyticsService.Tests.csproj","lint_paths":"apps/backend/AnalyticsService apps/backend/Test/AnalyticsService.Tests"} : empty)
               ]')
           fi
 

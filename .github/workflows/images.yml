@@ -40,17 +40,17 @@ jobs:
               - 'NuGet.config'
               - '.github/workflows/images.yml'
             auth:
-              - 'Backend/AuthService/**'
+              - 'apps/backend/AuthService/**'
             expense:
-              - 'Backend/ExpenseService/**'
+              - 'apps/backend/ExpenseService/**'
             category:
-              - 'Backend/CategoryService/**'
+              - 'apps/backend/CategoryService/**'
             budget:
-              - 'Backend/BudgetService/**'
+              - 'apps/backend/BudgetService/**'
             savings_goal:
-              - 'Backend/SavingsGoalService/**'
+              - 'apps/backend/SavingsGoalService/**'
             analytics:
-              - 'Backend/AnalyticsService/**'
+              - 'apps/backend/AnalyticsService/**'
 
       - name: Build image matrix
         id: set-matrix
@@ -150,7 +150,7 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
-          context: Backend/${{ matrix.service.dir }}
+          context: apps/backend/${{ matrix.service.dir }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags.outputs.tags }}
