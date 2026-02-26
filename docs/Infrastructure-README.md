@@ -4,8 +4,8 @@ This folder contains everything to run the backend locally with Docker Compose o
 
 ## What’s included
 
-- Docker Compose stack with SQL Server, all microservices, Prometheus, Grafana
-- Kubernetes manifests (namespace, configs/secrets, SQL Server, services, Prometheus, Grafana)
+- Docker Compose stack with PostgreSQL, all microservices, Prometheus, Grafana
+- Kubernetes manifests (namespace, configs/secrets, PostgreSQL, services, Prometheus, Grafana)
 - Skaffold and Tilt for fast local dev on Kubernetes
 - Probes, resource requests/limits, and Prometheus scraping annotations
 
@@ -17,8 +17,8 @@ This folder contains everything to run the backend locally with Docker Compose o
 
 ## Option A: Run with Docker Compose
 
-1) Copy env template if present and set secrets
-   - If there's an `.env.template`, copy to `.env` and fill values (DB passwords, JWT secret).
+1) Copy env template and set secrets
+   - Copy `.env.example` to `.env` and fill values (DB passwords, JWT secret).
 2) Start the stack
    - From repo root: use the provided `manage.sh` if available, otherwise run Docker Compose.
 3) Access
@@ -31,7 +31,7 @@ Metrics endpoint for each service: `/metrics`. Health endpoint: `/health`.
 ## Option B: Run on Kubernetes with Skaffold
 
 1) Ensure your kube context points to a local cluster
-2) Apply base infra (namespace/configs/sqlserver/monitoring/services) or let Skaffold apply all manifests
+2) Apply base infra (namespace/configs/postgres/monitoring/services) or let Skaffold apply all manifests
 3) Run:
    - `skaffold dev` for iterative dev (rebuilds on changes, port-forwards Prometheus and Grafana)
    - `skaffold run` for a one-off deploy
@@ -54,7 +54,7 @@ Metrics endpoint for each service: `/metrics`. Health endpoint: `/health`.
 ## Troubleshooting
 
 - Database init
-  - If SQL Server isn’t ready, services may restart until the DB is reachable. Give it ~20–40 seconds.
+  - If PostgreSQL isn’t ready, services may restart until the DB is reachable. Give it ~20–40 seconds.
 - Pods not ready
   - Check `kubectl get pods -n expensetracker` and `kubectl describe pod/<pod> -n expensetracker`.
 - No metrics in Grafana
