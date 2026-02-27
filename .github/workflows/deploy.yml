@@ -51,6 +51,7 @@ jobs:
           yq -i ".analyticsService.tag = \"analytics-service-${SHA}\"" "$FILE"
 
       - name: Create PR for dev promotion
+        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/promote-dev-${{ github.event.workflow_run.head_sha }}
@@ -64,3 +65,27 @@ jobs:
           labels: |
             gitops
             deployment
+
+      - name: Report PR result
+        shell: bash
+        env:
+          PR_OPERATION: ${{ steps.cpr.outputs.pull-request-operation }}
+          PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+          PR_URL: ${{ steps.cpr.outputs.pull-request-url }}
+        run: |
+          set -euo pipefail
+          echo "pull-request-operation=${PR_OPERATION:-none}"
+          echo "pull-request-number=${PR_NUMBER:-none}"
+          echo "pull-request-url=${PR_URL:-none}"
+
+          {
+            echo "### Dev Promotion PR"
+            echo ""
+            echo "- operation: \`${PR_OPERATION:-none}\`"
+            echo "- number: \`${PR_NUMBER:-none}\`"
+            if [[ -n "${PR_URL:-}" ]]; then
+              echo "- url: ${PR_URL}"
+            else
+              echo "- url: none (likely no changes to commit)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
