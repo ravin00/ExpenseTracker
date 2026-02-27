@@ -31,8 +31,6 @@ ingress:
   tls:
     enabled: true
     secretName: spendwise-tls-prod
-sealedSecrets:
-  enabled: false # Set to false if Sealed Secrets controller is not installed
 secrets:
   existingSecretName: spendwise-secrets
   create: false

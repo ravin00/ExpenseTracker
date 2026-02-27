@@ -174,18 +174,10 @@ ingress:
 # ──────────────────────────────────────────
 environment: Development
 # ──────────────────────────────────────────
-# Sealed Secrets
-# ──────────────────────────────────────────
-sealedSecrets:
-  enabled: false # Enable in production
-# ──────────────────────────────────────────
 # Secrets
 # ──────────────────────────────────────────
 secrets:
   existingSecretName: spendwise-secrets
-  create: false
-  dbPassword: ""
-  jwtSecret: ""
 # ──────────────────────────────────────────
 # Pod Security
 # ──────────────────────────────────────────
