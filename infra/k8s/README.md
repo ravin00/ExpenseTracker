@@ -1,6 +1,6 @@
 # SpendWise Kubernetes Deployment
 
-This folder contains Helm and ArgoCD GitOps configuration for `dev`, `staging`, and `prod` environments.
+This folder contains Helm and Argo CD GitOps configuration for `dev`, `staging`, and `prod` environments.
 
 ## Local Development
 
@@ -29,19 +29,28 @@ helm upgrade --install spendwise ./infra/k8s/charts/spendwise \
   -f ./infra/k8s/charts/spendwise/values-prod.yaml
 ```
 
-## ArgoCD (Project + ApplicationSet)
+## Argo CD (Project + ApplicationSets)
 
 ```bash
-# Create SpendWise Argo project boundaries
+# Create SpendWise Argo project boundaries (once per Argo instance)
 kubectl apply -f ./infra/k8s/argocd/project-spendwise.yaml
 
-# Create all env apps (dev/staging/prod) from one template
+# Local or shared dev cluster: apply DEV only
 kubectl apply -f ./infra/k8s/argocd/applicationset-spendwise.yaml
+
+# Staging Argo instance/cluster: apply STAGING
+kubectl apply -f ./infra/k8s/argocd/applicationset-spendwise-staging.yaml
+
+# Production Argo instance/cluster: apply PROD (manual sync by default)
+kubectl apply -f ./infra/k8s/argocd/applicationset-spendwise-prod.yaml
 ```
 
 Notes:
-- `dev` and `staging` are auto-sync by template patch in `applicationset-spendwise.yaml`.
+- Do not apply `staging` and `prod` ApplicationSets on single-node local clusters.
+- `dev` and `staging` are automated sync.
 - `prod` is manual sync by design.
+- `spendwise-secrets` is expected to be externally managed and is ignored in orphan warnings.
+- `values-dev.yaml` intentionally overrides security context for local runtime compatibility.
 
 ## Validation
 
@@ -55,7 +64,7 @@ helm template spendwise ./infra/k8s/charts/spendwise \
   -f ./infra/k8s/charts/spendwise/values-dev.yaml
 ```
 
-## ArgoCD Access
+## Argo CD Access
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:80
