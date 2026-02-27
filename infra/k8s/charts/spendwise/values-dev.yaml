@@ -78,4 +78,8 @@ analyticsService:
       memory: 256Mi
 ingress:
   enabled: false
+  ignoreHealthCheck: true
   host: dev.spendwise.local
+secrets:
+  existingSecretName: spendwise-secrets
+  create: false

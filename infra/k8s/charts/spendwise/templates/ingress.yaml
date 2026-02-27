@@ -7,6 +7,9 @@ metadata:
   labels:
     {{- include "spendwise.labels" . | nindent 4 }}
   annotations:
+    {{- if .Values.ingress.ignoreHealthCheck }}
+    argocd.argoproj.io/ignore-healthcheck: "true"
+    {{- end }}
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"

@@ -57,3 +57,10 @@ Usage: {{ include "spendwise.connectionString" (dict "Values" .Values "dbName" "
 {{- define "spendwise.connectionString" -}}
 Host={{ include "spendwise.dbHost" . }};Port={{ include "spendwise.dbPort" . }};Database={{ .dbName }};Username={{ include "spendwise.dbUser" . }};Password=$(DB_PASSWORD)
 {{- end }}
+
+{{/*
+Secret name helper
+*/}}
+{{- define "spendwise.secretName" -}}
+{{- default "spendwise-secrets" .Values.secrets.existingSecretName -}}
+{{- end }}

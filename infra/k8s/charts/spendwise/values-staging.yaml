@@ -8,4 +8,8 @@ authService:
 expenseService:
   replicas: 2
 ingress:
+  ignoreHealthCheck: false
   host: staging.spendwise.local
+secrets:
+  existingSecretName: spendwise-secrets
+  create: false
