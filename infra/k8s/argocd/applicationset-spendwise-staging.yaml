@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: spendwise-dev
+  name: spendwise-staging
   namespace: argocd
 spec:
   goTemplate: true
@@ -10,9 +10,9 @@ spec:
   generators:
     - list:
         elements:
-          - env: dev
-            namespace: spendwise-dev
-            valuesFile: values-dev.yaml
+          - env: staging
+            namespace: spendwise-staging
+            valuesFile: values-staging.yaml
   template:
     metadata:
       name: 'spendwise-{{ .env }}'
@@ -44,19 +44,6 @@ spec:
           valueFiles:
             - values.yaml
             - '{{ .valuesFile }}'
-          values: |
-            podSecurityContext:
-              runAsNonRoot: false
-              runAsUser: 0
-              runAsGroup: 0
-              seccompProfile:
-                type: RuntimeDefault
-            containerSecurityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities:
-                drop:
-                  - NET_RAW
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{ .namespace }}'
