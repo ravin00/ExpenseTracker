@@ -175,7 +175,7 @@ try
     catch (Exception ex)
     {
         Log.Error(ex, "Failed to initialize analytics database");
-        Log.Warning("Service will start but database features won't work until SQL Server is available");
+        Log.Warning("Service will start but database features won't work until the database is available");
     }
 
     Log.Information("Analytics Service starting...");

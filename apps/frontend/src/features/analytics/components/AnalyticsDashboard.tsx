@@ -54,8 +54,10 @@ export function AnalyticsDashboard() {
 
             <section className="charts-section">
                 <div className="chart-controls">
-                    <label>Trend Period:</label>
+                    <label htmlFor="trend-period-select">Trend Period:</label>
                     <select
+                        id="trend-period-select"
+                        aria-label="Trend Period"
                         value={trendPeriod}
                         onChange={(e) => setTrendPeriod(e.target.value as AnalyticsPeriod)}
                     >

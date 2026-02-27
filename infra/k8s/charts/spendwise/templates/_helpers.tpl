@@ -35,9 +35,9 @@ Database port
 */}}
 {{- define "spendwise.dbPort" -}}
 {{- if .Values.postgres.enabled -}}
-{{ .Values.postgres.port | quote }}
+{{ .Values.postgres.port }}
 {{- else -}}
-{{ .Values.externalDatabase.port | quote }}
+{{ .Values.externalDatabase.port }}
 {{- end -}}
 {{- end }}
 {{/*

@@ -32,28 +32,28 @@ spec:
             name: {{ .Values.authService.name }}
             port:
               number: 80
-      - path: /api/expenses(/|$)(.*)
+      - path: /api/expense(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.expenseService.name }}
             port:
               number: 80
-      - path: /api/categories(/|$)(.*)
+      - path: /api/category(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.categoryService.name }}
             port:
               number: 80
-      - path: /api/budgets(/|$)(.*)
+      - path: /api/budget(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.budgetService.name }}
             port:
               number: 80
-      - path: /api/savings-goals(/|$)(.*)
+      - path: /api/savingsgoal(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:

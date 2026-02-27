@@ -1,11 +1,11 @@
 # SpendWise
 
-[![.NET](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
 [![Docker](https://img.shields.io/badge/Docker-Containerized-blue)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
 
-A modern, microservices-based personal finance platform built with .NET 9.0, featuring robust authentication, comprehensive expense management, and advanced analytics capabilities.
+A modern, microservices-based personal finance platform built with .NET 8.0, featuring robust authentication, comprehensive expense management, and advanced analytics capabilities.
 
 ## Table of Contents
 
@@ -33,25 +33,25 @@ A modern, microservices-based personal finance platform built with .NET 9.0, fea
 - **Microservices Architecture**: Decoupled services for scalability.
 - **API Gateway**: Centralized entry point using Nginx.
 - **Containerization**: Fully dockerized for easy deployment.
-- **Modern Stack**: Built with .NET 9.0 and SQL Server.
+- **Modern Stack**: Built with .NET 8.0 and PostgreSQL.
 
 ## Architecture
 
 ```mermaid
 graph TB
-    Client[Client Application] --> Gateway[API Gateway<br/>Nginx:8080]
+    Client[Client Application] --> Gateway[API Gateway<br/>Nginx:5100]
 
-    Gateway --> Auth[Auth Service<br/>:5001]
-    Gateway --> Expense[Expense Service<br/>:5002]
-    Gateway --> Budget[Budget Service<br/>:5003]
-    Gateway --> Analytics[Analytics Service<br/>:5004]
+    Gateway --> Auth[Auth Service<br/>:5101]
+    Gateway --> Expense[Expense Service<br/>:5090]
+    Gateway --> Budget[Budget Service<br/>:5104]
+    Gateway --> Analytics[Analytics Service<br/>:5106]
 
     Auth --> AuthDB[(Auth Database)]
     Expense --> ExpenseDB[(Expense Database)]
     Budget --> BudgetDB[(Budget Database)]
     Analytics --> AnalyticsDB[(Analytics Database)]
 
-    AuthDB --> SQL[SQL Server<br/>:1433]
+    AuthDB --> SQL[PostgreSQL<br/>:5432]
     ExpenseDB --> SQL
     BudgetDB --> SQL
     AnalyticsDB --> SQL
@@ -65,12 +65,12 @@ graph TB
 
 | Service               | Port | Responsibility                  | Database                |
 | --------------------- | ---- | ------------------------------- | ----------------------- |
-| **API Gateway**       | 8080 | Request routing, load balancing | -                       |
-| **Auth Service**      | 5001 | Authentication, user management | ExpenseTrackerAuth      |
-| **Expense Service**   | 5002 | Expense CRUD operations         | ExpenseTrackerExpenses  |
-| **Budget Service**    | 5003 | Budget management, alerts       | ExpenseTrackerBudgets   |
-| **Analytics Service** | 5004 | Financial analytics, reporting  | ExpenseTrackerAnalytics |
-| **SQL Server**        | 1433 | Database server                 | Multiple databases      |
+| **API Gateway**       | 5100 | Request routing, load balancing | -                       |
+| **Auth Service**      | 5101 | Authentication, user management | ExpenseTrackerAuth      |
+| **Expense Service**   | 5090 | Expense CRUD operations         | ExpenseTrackerExpenses  |
+| **Budget Service**    | 5104 | Budget management, alerts       | ExpenseTrackerBudgets   |
+| **Analytics Service** | 5106 | Financial analytics, reporting  | ExpenseTrackerAnalytics |
+| **PostgreSQL**        | 5432 | Database server                 | Multiple databases      |
 
 ## Quick Start
 
@@ -99,25 +99,25 @@ graph TB
 
    ```bash
    # Check service health
-   curl http://localhost:8080/health
+   curl http://localhost:5100/health
 
    # View service status
    docker-compose ps
    ```
 
 4. **Access the application**
-   - API Gateway: http://localhost:8080
-   - Auth Service: http://localhost:8080/auth/swagger
-   - Expense Service: http://localhost:8080/expense/swagger
-   - Budget Service: http://localhost:8080/budget/swagger
-   - Analytics Service: http://localhost:8080/analytics/swagger
+   - API Gateway: http://localhost:5100
+   - Auth Service: http://localhost:5100/auth/swagger
+   - Expense Service: http://localhost:5100/expense/swagger
+   - Budget Service: http://localhost:5100/budget/swagger
+   - Analytics Service: http://localhost:5100/analytics/swagger
 
 ### First Run
 
 1. **Register a new user**
 
    ```bash
-   curl -X POST http://localhost:8080/api/auth/register \
+   curl -X POST http://localhost:5100/api/auth/register \
      -H "Content-Type: application/json" \
      -d '{
        "username": "demo_user",
@@ -129,7 +129,7 @@ graph TB
 2. **Login and get JWT token**
 
    ```bash
-   curl -X POST http://localhost:8080/api/auth/login \
+   curl -X POST http://localhost:5100/api/auth/login \
      -H "Content-Type: application/json" \
      -d '{
        "email": "demo@example.com",
@@ -139,7 +139,7 @@ graph TB
 
 3. **Create your first expense**
    ```bash
-   curl -X POST http://localhost:8080/api/expense \
+   curl -X POST http://localhost:5100/api/expense \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer YOUR_JWT_TOKEN" \
      -d '{
@@ -202,14 +202,14 @@ Access comprehensive API documentation with interactive testing:
 
 ### Local Development Setup
 
-1. **Install .NET 9.0 SDK**
+1. **Install .NET 8.0 SDK**
 
    ```bash
    # macOS (using Homebrew)
    brew install dotnet
 
    # Windows (using Chocolatey)
-   choco install dotnet-9.0-sdk
+   choco install dotnet-8.0-sdk
 
    # Or download from: https://dotnet.microsoft.com/download
    ```
@@ -218,7 +218,7 @@ Access comprehensive API documentation with interactive testing:
 
    ```bash
    # Start only database
-   docker-compose up sqlserver -d
+   docker-compose up postgres -d
    ```
 
 3. **Run services locally**
@@ -324,11 +324,11 @@ dotnet build --verbosity normal
 | `DB_PASSWORD`            | Postgres SQL           | `ExpenseTracker123!` | Yes      |
 | `JWT_SECRET`             | JWT signing key        | Generated            | Yes      |
 | `ASPNETCORE_ENVIRONMENT` | Environment            | `Development`        | Yes      |
-| `AUTH_SERVICE_PORT`      | Auth service port      | `5001`               | No       |
-| `EXPENSE_SERVICE_PORT`   | Expense service port   | `5002`               | No       |
-| `BUDGET_SERVICE_PORT`    | Budget service port    | `5003`               | No       |
-| `ANALYTICS_SERVICE_PORT` | Analytics service port | `5004`               | No       |
-| `GATEWAY_PORT`           | API Gateway port       | `8080`               | No       |
+| `AUTH_SERVICE_PORT`      | Auth service port      | `5101`               | No       |
+| `EXPENSE_SERVICE_PORT`   | Expense service port   | `5090`               | No       |
+| `BUDGET_SERVICE_PORT`    | Budget service port    | `5104`               | No       |
+| `ANALYTICS_SERVICE_PORT` | Analytics service port | `5106`               | No       |
+| `GATEWAY_PORT`           | API Gateway port       | `5100`               | No       |
 
 ### Health Checks
 
@@ -336,13 +336,13 @@ Monitor service health using built-in endpoints:
 
 ```bash
 # Overall system health
-curl http://localhost:8080/health
+curl http://localhost:5100/health
 
 # Individual service health
-curl http://localhost:5001/health  # Auth Service
-curl http://localhost:5002/health  # Expense Service
-curl http://localhost:5003/health  # Budget Service
-curl http://localhost:5004/health  # Analytics Service
+curl http://localhost:5101/health  # Auth Service
+curl http://localhost:5090/health  # Expense Service
+curl http://localhost:5104/health  # Budget Service
+curl http://localhost:5106/health  # Analytics Service
 ```
 
 ## Documentation
@@ -353,12 +353,12 @@ Comprehensive documentation is available in the [`docs/`](docs/) folder:
 
 ### Quick Documentation Links
 
-| Role                 | Recommended Starting Point                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **Developers**       | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) -> [General Improvements](docs/IMPROVEMENTS.md)                |
-| **DevOps Engineers** | [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) -> [ArgoCD Deployment](docs/ArgoCD-Deployment.md) |
-| **Security Teams**   | [Security Guide](docs/SECURITY.md) -> [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)             |
-| **Project Managers** | [Documentation Index](docs/README.md) -> [General Improvements](docs/IMPROVEMENTS.md)                                |
+| Role                 | Recommended Starting Point                                                     |
+| -------------------- | ------------------------------------------------------------------------------ |
+| **Developers**       | [Infrastructure Guide](docs/Infrastructure-README.md) -> [Security](docs/SECURITY.md) |
+| **DevOps Engineers** | [ArgoCD Deployment](docs/ArgoCD-Deployment.md) -> [Infrastructure Guide](docs/Infrastructure-README.md) |
+| **Security Teams**   | [Security Guide](docs/SECURITY.md)                                             |
+| **Project Managers** | [Documentation Index](docs/README.md)                                          |
 
 ## Contributing
 
@@ -401,11 +401,11 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ```bash
 # Check which process is using a port
-lsof -i :8080
-lsof -i :5001
+lsof -i :5100
+lsof -i :5101
 
 # Kill process using port
-sudo kill -9 $(lsof -t -i:8080)
+sudo kill -9 $(lsof -t -i:5100)
 ```
 
 </details>
@@ -414,16 +414,15 @@ sudo kill -9 $(lsof -t -i:8080)
 <summary><strong>Database Connection Issues</strong></summary>
 
 ```bash
-# Check SQL Server status
-docker-compose logs sqlserver
+# Check PostgreSQL status
+docker-compose logs postgres
 
 # Test database connection
-docker-compose exec sqlserver /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U sa -P ExpenseTracker123! -Q "SELECT 1"
+docker-compose exec postgres pg_isready -U postgres
 
 # Reset database
 docker-compose down -v
-docker-compose up sqlserver -d
+docker-compose up postgres -d
 ```
 
 </details>
@@ -458,7 +457,7 @@ echo $JWT_SECRET
 docker-compose logs auth-service | grep -i jwt
 
 # Test with new token
-curl -X POST http://localhost:8080/api/auth/login \
+curl -X POST http://localhost:5100/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password"}'
 ```

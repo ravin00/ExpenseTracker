@@ -2,6 +2,13 @@ import { Button } from '@/components/ui/button'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { ArrowRight, Check, Shield, Sparkles, Zap } from 'lucide-react'
 
+const CTA_PARTICLES = Array.from({ length: 15 }, (_, i) => ({
+    left: (i * 37) % 100,
+    top: (i * 53) % 100,
+    delay: i * 0.4,
+    duration: 5 + (i % 6),
+}))
+
 export function CTA() {
     const { ref, isVisible } = useScrollReveal()
 
@@ -36,15 +43,15 @@ export function CTA() {
 
                     {/* Floating Particles */}
                     <div className="absolute inset-0 overflow-hidden">
-                        {[...Array(15)].map((_, i) => (
+                        {CTA_PARTICLES.map((particle, i) => (
                             <div
                                 key={i}
                                 className="absolute w-1.5 h-1.5 bg-white/20 rounded-full animate-float"
                                 style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                    animationDelay: `${i * 0.4}s`,
-                                    animationDuration: `${5 + Math.random() * 5}s`,
+                                    left: `${particle.left}%`,
+                                    top: `${particle.top}%`,
+                                    animationDelay: `${particle.delay}s`,
+                                    animationDuration: `${particle.duration}s`,
                                 }}
                             />
                         ))}

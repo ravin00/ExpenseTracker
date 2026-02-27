@@ -2,35 +2,40 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { authApi } from '../services/auth.api'
-import type { LoginDto, RegisterDto } from '../types'
+import type { AuthResponse, LoginDto, RegisterDto, User } from '../types'
+
+type AuthResponseWithFallback = AuthResponse & {
+    Token?: string
+    User?: User
+}
+
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message) {
+        return error.message
+    }
+
+    return 'Request failed'
+}
 
 export function useAuth() {
     const { login: setAuth, logout: clearAuth, user, isAuthenticated } = useAuthStore()
 
-
     const loginMutation = useMutation({
         mutationFn: (credentials: LoginDto) => authApi.login(credentials),
-        onSuccess: (data: any) => {
-            console.log('Login Response Data:', data) // DEBUG log
+        onSuccess: (data: AuthResponseWithFallback) => {
+            const token = data.token ?? data.Token
+            const authenticatedUser = data.user ?? data.User
 
-            // Handle Case Sensitivity (backend might return PascalCase)
-            const token = data.token || data.Token
-            const user = data.user || data.User
-
-            console.log('Extracted:', { token, user }) // DEBUG log
-
-            if (!token) {
-                console.error('Login successful but no token found:', data)
+            if (!token || !authenticatedUser) {
                 toast.error('Login failed: Server response invalid')
                 return
             }
 
-            setAuth(token, user)
-            console.log('Auth State Updated via setAuth') // DEBUG log
-            toast.success(`Welcome back, ${user?.username || user?.Username || 'User'}!`)
+            setAuth(token, authenticatedUser)
+            toast.success(`Welcome back, ${authenticatedUser.username || 'User'}!`)
         },
-        onError: (error: any) => {
-            toast.error(error.message || 'Login failed')
+        onError: (error: unknown) => {
+            toast.error(getErrorMessage(error))
         },
     })
 
@@ -39,8 +44,8 @@ export function useAuth() {
         onSuccess: () => {
             toast.success('Registration successful! Please login.')
         },
-        onError: (error: any) => {
-            toast.error(error.message || 'Registration failed')
+        onError: (error: unknown) => {
+            toast.error(getErrorMessage(error))
         },
     })
 

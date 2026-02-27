@@ -8,7 +8,7 @@ metadata:
 data:
   ASPNETCORE_ENVIRONMENT: {{ .Values.environment | quote }}
   DB_SERVER: {{ include "spendwise.dbHost" . | quote }}
-  DB_PORT: {{ include "spendwise.dbPort" . }}
+  DB_PORT: {{ include "spendwise.dbPort" . | quote }}
   DB_USER: {{ include "spendwise.dbUser" . | quote }}
   AUTH_DB_NAME: {{ .Values.databases.auth | quote }}
   EXPENSE_DB_NAME: {{ .Values.databases.expense | quote }}

@@ -1,89 +1,70 @@
 # SpendWise Kubernetes Deployment
 
-## Architecture
+This folder contains Helm and ArgoCD configuration for `dev`, `staging`, and `prod` environments.
 
-                    ┌─────────────────────────────────────┐
-                    │         Nginx Ingress Controller      │
-                    │         api.spendwise.com             │
-                    └────┬──────┬──────┬──────┬──────┬─────┘
-                         │      │      │      │      │
-              ┌──────────┘  ┌───┘  ┌───┘  ┌───┘  ┌───┘
-              ▼             ▼      ▼      ▼      ▼
-         ┌────────┐  ┌────────┐ ┌──────┐ ┌──────┐ ┌───────────┐
-         │  Auth  │  │Expense │ │Budget│ │ Cat. │ │ Analytics │
-         │Service │  │Service │ │Svc   │ │ Svc  │ │  Service  │
-         │  x2-5  │  │  x2-5  │ │ x2-4 │ │ x2-4 │ │   x2-5   │
-         └───┬────┘  └───┬────┘ └──┬───┘ └──┬───┘ └─────┬─────┘
-             │            │        │        │            │
-             └────────────┴────────┴────────┴────────────┘
-                                   │
-                         ┌─────────▼─────────┐
-                         │   PostgreSQL DB    │
-                         │  (Managed / K8s)   │
-                         └───────────────────┘
+## Local Development
 
-## Quick Start
+For local iteration, prefer Docker Compose in the repo root.
+Use Kubernetes locally only when validating ingress, probes, or ArgoCD behavior.
 
-### Local Development (Minikube)
-
-    minikube start
-    helm install spendwise ./infra/k8s/charts/spendwise -f infra/k8s/charts/spendwise/values-dev.yaml
-
-### Staging
-
-    helm install spendwise ./infra/k8s/charts/spendwise -f infra/k8s/charts/spendwise/values-staging.yaml
-
-### Production (with ArgoCD)
-
-    kubectl apply -f infra/k8s/argocd/application.yaml
-
-## Commands
-
-| Action    | Command                                                   |
-| --------- | --------------------------------------------------------- |
-| Install   | `helm install spendwise ./infra/k8s/charts/spendwise`           |
-| Upgrade   | `helm upgrade spendwise ./infra/k8s/charts/spendwise`           |
-| Rollback  | `helm rollback spendwise 1`                               |
-| Uninstall | `helm uninstall spendwise`                                |
-| Dry run   | `helm install spendwise ./infra/k8s/charts/spendwise --dry-run` |
-| Template  | `helm template spendwise ./infra/k8s/charts/spendwise`          |
-
-🚀 Deployment Commands
+## Helm Deploy Commands
 
 ```bash
-# Dev (Minikube) - Deploys to 'spendwise-dev' namespace
-helm install spendwise ./infra/k8s/charts/spendwise \
+# Dev
+helm upgrade --install spendwise ./infra/k8s/charts/spendwise \
   -n spendwise-dev --create-namespace \
+  -f ./infra/k8s/charts/spendwise/values.yaml \
   -f ./infra/k8s/charts/spendwise/values-dev.yaml
 
-# Staging - Deploys to 'spendwise-staging' namespace
+# Staging
 helm upgrade --install spendwise ./infra/k8s/charts/spendwise \
   -n spendwise-staging --create-namespace \
+  -f ./infra/k8s/charts/spendwise/values.yaml \
   -f ./infra/k8s/charts/spendwise/values-staging.yaml
 
-# Production (via ArgoCD — auto-syncs from Git)
-kubectl apply -f infra/k8s/argocd/application.yaml
+# Prod
+helm upgrade --install spendwise ./infra/k8s/charts/spendwise \
+  -n spendwise-prod --create-namespace \
+  -f ./infra/k8s/charts/spendwise/values.yaml \
+  -f ./infra/k8s/charts/spendwise/values-prod.yaml
 ```
 
-## 🕵️‍♂️ Verifying with ArgoCD
+## ArgoCD Application Manifests
 
-1. **Access the UI**
+```bash
+# Dev
+kubectl apply -f ./infra/k8s/argocd/application-dev.yaml
 
-   ```bash
-   # Port-forward the ArgoCD server to localhost:8080
-   kubectl port-forward svc/argocd-server -n argocd 8080:443
-   ```
+# Staging
+kubectl apply -f ./infra/k8s/argocd/application-staging.yaml
 
-   Open [https://localhost:8080](https://localhost:8080) in your browser.
+# Prod
+kubectl apply -f ./infra/k8s/argocd/application.yaml
+```
 
-2. **Login**
-   - **Username**: `admin`
-   - **Password**: Run this command to get it:
-     ```bash
-     kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d; echo
-     ```
+## Validation
 
-3. **Check Application**
-   - You should see the `spendwise` application tile.
-   - Click it to see the visual tree of all your microservices (Auth, Expense, Budget, etc.).
-   - Status should be `Healthy` and `Synced`.
+```bash
+# Lint chart
+helm lint ./infra/k8s/charts/spendwise -f ./infra/k8s/charts/spendwise/values.yaml
+
+# Render manifests
+helm template spendwise ./infra/k8s/charts/spendwise \
+  -f ./infra/k8s/charts/spendwise/values.yaml \
+  -f ./infra/k8s/charts/spendwise/values-dev.yaml
+```
+
+## ArgoCD Access
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:80
+```
+
+Open [http://localhost:8080](http://localhost:8080).
+
+Get admin password:
+
+```bash
+kubectl get secret argocd-initial-admin-secret -n argocd \
+  -o jsonpath="{.data.password}" | base64 -d; echo
+```

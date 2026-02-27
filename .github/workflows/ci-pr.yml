@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: "9.0.x"
+  DOTNET_VERSION: "8.0.x"
 
 jobs:
   detect-changes:
@@ -19,6 +19,7 @@ jobs:
     outputs:
       services_matrix: ${{ steps.set-matrix.outputs.services_matrix }}
       should_run: ${{ steps.set-matrix.outputs.should_run }}
+      frontend_changed: ${{ steps.set-matrix.outputs.frontend_changed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,6 +54,8 @@ jobs:
             analytics:
               - 'apps/backend/AnalyticsService/**'
               - 'apps/backend/Test/AnalyticsService.Tests/**'
+            frontend:
+              - 'apps/frontend/**'
 
       - name: Build service matrix
         id: set-matrix
@@ -100,7 +103,34 @@ jobs:
             echo "$MATRIX"
             echo "EOF"
             echo "should_run=$SHOULD_RUN"
+            echo "frontend_changed=${{ steps.filter.outputs.frontend }}"
           } >> "$GITHUB_OUTPUT"
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend_changed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: apps/frontend/pnpm-lock.yaml
+
+      - name: Install frontend deps
+        run: pnpm --dir apps/frontend install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm --dir apps/frontend build
 
   build-test-lint:
     name: Build, Test, Lint (${{ matrix.service.service }})
