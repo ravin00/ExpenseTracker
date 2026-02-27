@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: spendwise
+  namespace: argocd
+spec:
+  description: SpendWise GitOps project boundaries
+  sourceRepos:
+    - https://github.com/ravin00/ExpenseTracker.git
+  destinations:
+    - namespace: spendwise-dev
+      server: https://kubernetes.default.svc
+    - namespace: spendwise-staging
+      server: https://kubernetes.default.svc
+    - namespace: spendwise-prod
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  orphanedResources:
+    warn: true
