@@ -1,0 +1,86 @@
+name: Promote Images To Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Environment to promote to"
+        type: choice
+        required: true
+        options:
+          - staging
+          - prod
+      image_sha:
+        description: "Commit SHA used in image tags"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: promote-${{ github.event.inputs.target_env }}-${{ github.event.inputs.image_sha }}
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote to ${{ github.event.inputs.target_env }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target_env }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Validate SHA input
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="${{ github.event.inputs.image_sha }}"
+          if ! [[ "$SHA" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "Invalid SHA: $SHA"
+            exit 1
+          fi
+
+      - name: Install yq
+        shell: bash
+        run: |
+          set -euo pipefail
+          YQ_VERSION=v4.44.3
+          sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          sudo chmod +x /usr/local/bin/yq
+          yq --version
+
+      - name: Update target environment tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          ENV_NAME="${{ github.event.inputs.target_env }}"
+          SHA="${{ github.event.inputs.image_sha }}"
+          FILE="infra/k8s/charts/spendwise/values-${ENV_NAME}.yaml"
+
+          yq -i ".authService.tag = \"auth-service-${SHA}\"" "$FILE"
+          yq -i ".expenseService.tag = \"expense-service-${SHA}\"" "$FILE"
+          yq -i ".categoryService.tag = \"category-service-${SHA}\"" "$FILE"
+          yq -i ".budgetService.tag = \"budget-service-${SHA}\"" "$FILE"
+          yq -i ".savingsGoalService.tag = \"savings-goal-service-${SHA}\"" "$FILE"
+          yq -i ".analyticsService.tag = \"analytics-service-${SHA}\"" "$FILE"
+
+      - name: Create promotion PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/promote-${{ github.event.inputs.target_env }}-${{ github.event.inputs.image_sha }}
+          base: main
+          title: "chore(gitops): promote ${{ github.event.inputs.target_env }} images for ${{ github.event.inputs.image_sha }}"
+          commit-message: "chore(gitops): set ${{ github.event.inputs.target_env }} image tags to ${{ github.event.inputs.image_sha }}"
+          body: |
+            Promotes `${{ github.event.inputs.target_env }}` to immutable image tags from commit `${{ github.event.inputs.image_sha }}`.
+
+            Updated file:
+            - `infra/k8s/charts/spendwise/values-${{ github.event.inputs.target_env }}.yaml`
+          labels: |
+            gitops
+            promotion
+            ${{ github.event.inputs.target_env }}
