@@ -3,7 +3,6 @@ environment: Development
 global:
   image:
     pullPolicy: IfNotPresent # Use local images if available
-
 # Reduce resource usage for local dev
 authService:
   replicas: 1
@@ -16,7 +15,7 @@ authService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: auth-service-52cb5bcfb2f3b3d94ece58180b5e5df71ea2685c
 expenseService:
   replicas: 1
   autoscaling:
@@ -28,7 +27,7 @@ expenseService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: expense-service-52cb5bcfb2f3b3d94ece58180b5e5df71ea2685c
 categoryService:
   replicas: 1
   autoscaling:
@@ -40,7 +39,7 @@ categoryService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: category-service-52cb5bcfb2f3b3d94ece58180b5e5df71ea2685c
 budgetService:
   replicas: 1
   autoscaling:
@@ -52,7 +51,7 @@ budgetService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: budget-service-52cb5bcfb2f3b3d94ece58180b5e5df71ea2685c
 savingsGoalService:
   replicas: 1
   autoscaling:
@@ -64,7 +63,7 @@ savingsGoalService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: savings-goal-service-52cb5bcfb2f3b3d94ece58180b5e5df71ea2685c
 analyticsService:
   replicas: 1
   autoscaling:
@@ -76,6 +75,7 @@ analyticsService:
     limits:
       cpu: 250m
       memory: 256Mi
+  tag: analytics-service-52cb5bcfb2f3b3d94ece58180b5e5df71ea2685c
 ingress:
   enabled: false
   ignoreHealthCheck: true
