@@ -353,12 +353,12 @@ Comprehensive documentation is available in the [`docs/`](docs/) folder:
 
 ### Quick Documentation Links
 
-| Role                 | Recommended Starting Point                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **Developers**       | [Quality Status](docs/QUALITY_IMPROVEMENTS_STATUS.md) -> [General Improvements](docs/IMPROVEMENTS.md)                |
-| **DevOps Engineers** | [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md) -> [ArgoCD Deployment](docs/ArgoCD-Deployment.md) |
-| **Security Teams**   | [Security Guide](docs/SECURITY.md) -> [Infrastructure Improvements](docs/INFRASTRUCTURE_IMPROVEMENTS.md)             |
-| **Project Managers** | [Documentation Index](docs/README.md) -> [General Improvements](docs/IMPROVEMENTS.md)                                |
+| Role                 | Recommended Starting Point                                                     |
+| -------------------- | ------------------------------------------------------------------------------ |
+| **Developers**       | [Infrastructure Guide](docs/Infrastructure-README.md) -> [Security](docs/SECURITY.md) |
+| **DevOps Engineers** | [ArgoCD Deployment](docs/ArgoCD-Deployment.md) -> [Infrastructure Guide](docs/Infrastructure-README.md) |
+| **Security Teams**   | [Security Guide](docs/SECURITY.md)                                             |
+| **Project Managers** | [Documentation Index](docs/README.md)                                          |
 
 ## Contributing
 
