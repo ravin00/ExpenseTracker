@@ -164,6 +164,7 @@ analyticsService:
 ingress:
   enabled: true
   className: nginx
+  ignoreHealthCheck: false
   host: api.spendwise.local
   tls:
     enabled: false
@@ -177,3 +178,25 @@ environment: Development
 # ──────────────────────────────────────────
 sealedSecrets:
   enabled: false # Enable in production
+# ──────────────────────────────────────────
+# Secrets
+# ──────────────────────────────────────────
+secrets:
+  existingSecretName: spendwise-secrets
+  create: false
+  dbPassword: ""
+  jwtSecret: ""
+# ──────────────────────────────────────────
+# Pod Security
+# ──────────────────────────────────────────
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL

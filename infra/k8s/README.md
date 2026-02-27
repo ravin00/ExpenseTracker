@@ -1,6 +1,6 @@
 # SpendWise Kubernetes Deployment
 
-This folder contains Helm and ArgoCD configuration for `dev`, `staging`, and `prod` environments.
+This folder contains Helm and ArgoCD GitOps configuration for `dev`, `staging`, and `prod` environments.
 
 ## Local Development
 
@@ -29,18 +29,19 @@ helm upgrade --install spendwise ./infra/k8s/charts/spendwise \
   -f ./infra/k8s/charts/spendwise/values-prod.yaml
 ```
 
-## ArgoCD Application Manifests
+## ArgoCD (Project + ApplicationSet)
 
 ```bash
-# Dev
-kubectl apply -f ./infra/k8s/argocd/application-dev.yaml
+# Create SpendWise Argo project boundaries
+kubectl apply -f ./infra/k8s/argocd/project-spendwise.yaml
 
-# Staging
-kubectl apply -f ./infra/k8s/argocd/application-staging.yaml
-
-# Prod
-kubectl apply -f ./infra/k8s/argocd/application.yaml
+# Create all env apps (dev/staging/prod) from one template
+kubectl apply -f ./infra/k8s/argocd/applicationset-spendwise.yaml
 ```
+
+Notes:
+- `dev` and `staging` are auto-sync by template patch in `applicationset-spendwise.yaml`.
+- `prod` is manual sync by design.
 
 ## Validation
 
@@ -61,6 +62,13 @@ kubectl port-forward svc/argocd-server -n argocd 8080:80
 ```
 
 Open [http://localhost:8080](http://localhost:8080).
+
+If you run local clusters without an ingress controller/load balancer, keep `values-dev.yaml` with:
+
+```yaml
+ingress:
+  enabled: false
+```
 
 Get admin password:
 

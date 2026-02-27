@@ -21,10 +21,14 @@ spec:
       labels:
         app: {{ .Values.categoryService.name }}
     spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
       - name: {{ .Values.categoryService.name }}
         image: {{ include "spendwise.image" (dict "registry" .Values.global.image.registry "repository" .Values.global.image.repository "tag" .Values.categoryService.tag) }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
         ports:
         - containerPort: {{ .Values.categoryService.port }}
         env:
@@ -36,14 +40,14 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: spendwise-secrets
+              name: {{ include "spendwise.secretName" . }}
               key: DB_PASSWORD
         - name: ConnectionStrings__CategoryDb
           value: "Host={{ include "spendwise.dbHost" . }};Port={{ include "spendwise.dbPort" . }};Database={{ .Values.databases.category }};Username={{ include "spendwise.dbUser" . }};Password=$(DB_PASSWORD)"
         - name: Jwt__Secret
           valueFrom:
             secretKeyRef:
-              name: spendwise-secrets
+              name: {{ include "spendwise.secretName" . }}
               key: JWT_SECRET
         - name: Jwt__Issuer
           valueFrom:

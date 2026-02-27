@@ -1,0 +1,77 @@
+{{- if ge (int .Values.authService.replicas) 2 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.authService.name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.authService.name }}
+{{- end }}
+---
+{{- if ge (int .Values.expenseService.replicas) 2 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.expenseService.name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.expenseService.name }}
+{{- end }}
+---
+{{- if ge (int .Values.categoryService.replicas) 2 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.categoryService.name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.categoryService.name }}
+{{- end }}
+---
+{{- if ge (int .Values.budgetService.replicas) 2 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.budgetService.name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.budgetService.name }}
+{{- end }}
+---
+{{- if ge (int .Values.savingsGoalService.replicas) 2 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.savingsGoalService.name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.savingsGoalService.name }}
+{{- end }}
+---
+{{- if ge (int .Values.analyticsService.replicas) 2 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.analyticsService.name }}-pdb
+  namespace: {{ .Release.Namespace }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.analyticsService.name }}
+{{- end }}

@@ -1,29 +1,66 @@
-name: Deploy
+name: Promote Images To Dev
 
 on:
   workflow_run:
     workflows: ["Build and Push Images"]
     types: [completed]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 concurrency:
-  group: deploy-${{ github.event.workflow_run.head_branch || github.ref }}
+  group: promote-dev-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Deploy After Image Publish
+  promote-dev:
+    name: Update Dev Image Tags (GitOps)
     runs-on: ubuntu-latest
     if: |
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_branch == 'main'
     steps:
-      - name: Checkout deployed revision
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: main
 
-      - name: Deploy to development
+      - name: Install yq
+        shell: bash
         run: |
-          echo "Deploying commit ${{ github.event.workflow_run.head_sha }} to development"
-          echo "Place your Helm/ArgoCD deploy command here"
+          set -euo pipefail
+          YQ_VERSION=v4.44.3
+          sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          sudo chmod +x /usr/local/bin/yq
+          yq --version
+
+      - name: Update dev tags to immutable SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="infra/k8s/charts/spendwise/values-dev.yaml"
+          SHA="${{ github.event.workflow_run.head_sha }}"
+
+          yq -i ".authService.tag = \"auth-service-${SHA}\"" "$FILE"
+          yq -i ".expenseService.tag = \"expense-service-${SHA}\"" "$FILE"
+          yq -i ".categoryService.tag = \"category-service-${SHA}\"" "$FILE"
+          yq -i ".budgetService.tag = \"budget-service-${SHA}\"" "$FILE"
+          yq -i ".savingsGoalService.tag = \"savings-goal-service-${SHA}\"" "$FILE"
+          yq -i ".analyticsService.tag = \"analytics-service-${SHA}\"" "$FILE"
+
+      - name: Create PR for dev promotion
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/promote-dev-${{ github.event.workflow_run.head_sha }}
+          base: main
+          title: "chore(gitops): promote dev images for ${{ github.event.workflow_run.head_sha }}"
+          commit-message: "chore(gitops): update dev image tags to ${{ github.event.workflow_run.head_sha }}"
+          body: |
+            Updates `/infra/k8s/charts/spendwise/values-dev.yaml` to immutable image tags built from commit `${{ github.event.workflow_run.head_sha }}`.
+
+            This is a GitOps promotion PR generated after successful image build.
+          labels: |
+            gitops
+            deployment

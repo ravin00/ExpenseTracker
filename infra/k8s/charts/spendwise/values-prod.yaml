@@ -26,9 +26,13 @@ analyticsService:
     minReplicas: 3
     maxReplicas: 8
 ingress:
+  ignoreHealthCheck: false
   host: api.spendwise.com
   tls:
     enabled: true
     secretName: spendwise-tls-prod
 sealedSecrets:
   enabled: false # Set to false if Sealed Secrets controller is not installed
+secrets:
+  existingSecretName: spendwise-secrets
+  create: false
