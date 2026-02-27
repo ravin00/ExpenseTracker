@@ -3,7 +3,6 @@ environment: Development
 global:
   image:
     pullPolicy: IfNotPresent # Use local images if available
-
 # Reduce resource usage for local dev
 authService:
   replicas: 1
@@ -16,7 +15,7 @@ authService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: auth-service-eaf1152abc7f62017242743609792b405b08e64e
 expenseService:
   replicas: 1
   autoscaling:
@@ -28,7 +27,7 @@ expenseService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: expense-service-eaf1152abc7f62017242743609792b405b08e64e
 categoryService:
   replicas: 1
   autoscaling:
@@ -40,7 +39,7 @@ categoryService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: category-service-eaf1152abc7f62017242743609792b405b08e64e
 budgetService:
   replicas: 1
   autoscaling:
@@ -52,7 +51,7 @@ budgetService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: budget-service-eaf1152abc7f62017242743609792b405b08e64e
 savingsGoalService:
   replicas: 1
   autoscaling:
@@ -64,7 +63,7 @@ savingsGoalService:
     limits:
       cpu: 250m
       memory: 256Mi
-
+  tag: savings-goal-service-eaf1152abc7f62017242743609792b405b08e64e
 analyticsService:
   replicas: 1
   autoscaling:
@@ -76,6 +75,7 @@ analyticsService:
     limits:
       cpu: 250m
       memory: 256Mi
+  tag: analytics-service-eaf1152abc7f62017242743609792b405b08e64e
 ingress:
   enabled: false
   ignoreHealthCheck: true
@@ -83,7 +83,6 @@ ingress:
 secrets:
   existingSecretName: spendwise-secrets
   create: false
-
 # Local dev image hardening compatibility:
 # Current backend/postgres images require root startup on local PV/runtime.
 # Keep stricter defaults in values.yaml for staging/prod.
@@ -93,7 +92,6 @@ podSecurityContext:
   runAsGroup: 0
   seccompProfile:
     type: RuntimeDefault
-
 containerSecurityContext:
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: false
