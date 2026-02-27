@@ -83,3 +83,20 @@ ingress:
 secrets:
   existingSecretName: spendwise-secrets
   create: false
+
+# Local dev image hardening compatibility:
+# Current backend/postgres images require root startup on local PV/runtime.
+# Keep stricter defaults in values.yaml for staging/prod.
+podSecurityContext:
+  runAsNonRoot: false
+  runAsUser: 0
+  runAsGroup: 0
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - NET_RAW
