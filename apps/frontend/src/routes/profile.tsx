@@ -1,6 +1,15 @@
-import { UserProfile } from '@/features/auth/components/UserProfile'
+import { AuthGuard } from '@/features/auth/components/AuthGuard'
+import { SettingsPage } from '@/features/product/pages/settings-page'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/profile')({
-    component: UserProfile,
+  component: ProfileRoute,
 })
+
+function ProfileRoute() {
+  return (
+    <AuthGuard>
+      <SettingsPage />
+    </AuthGuard>
+  )
+}
