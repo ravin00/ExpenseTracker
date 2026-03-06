@@ -1,130 +1,109 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormField } from '@/components/product'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Loader2 } from 'lucide-react'
+import { Loader2, UserPlus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useAuth } from '../hooks/useAuth'
 
 const registerSchema = z.object({
-    username: z
-        .string()
-        .min(3, 'Username must be at least 3 characters')
-        .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-    email: z.string().email('Please enter a valid email address'),
-    password: z
-        .string()
-        .min(8, 'Password must be at least 8 characters')
-        .regex(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            'Password must contain uppercase, lowercase, number and special char'
-        ),
-    // confirmPassword: z.string() // Add confirmation if needed, but keeping simple for now
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Use letters, numbers, and underscores only'),
+  email: z.string().email('Enter a valid email address'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/, 'Include upper/lowercase, number, and symbol'),
 })
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
-    const { register: signup, isRegistering } = useAuth()
-    const navigate = useNavigate()
+  const { register: signup, isRegistering } = useAuth()
+  const navigate = useNavigate()
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<RegisterFormData>({
-        resolver: zodResolver(registerSchema),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  })
+
+  const onSubmit = (data: RegisterFormData) => {
+    signup(data, {
+      onSuccess: () => {
+        navigate({ to: '/login' })
+      },
     })
+  }
 
-    const onSubmit = (data: RegisterFormData) => {
-        signup(data, {
-            onSuccess: () => {
-                navigate({ to: '/login' }) // Redirect to login after registration
-            },
-        })
-    }
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-6 sm:p-10">
+      <Card className="w-full max-w-md border-border/80 bg-card/80 shadow-xl backdrop-blur">
+        <CardHeader className="space-y-2">
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 bg-background text-primary">
+            <UserPlus className="h-5 w-5" />
+          </div>
+          <CardTitle className="text-2xl">Create account</CardTitle>
+          <CardDescription>Set up your workspace in under one minute.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            <FormField id="username" label="Username" error={errors.username?.message}>
+              <Input
+                id="username"
+                placeholder="ravin"
+                disabled={isRegistering}
+                aria-invalid={Boolean(errors.username)}
+                {...register('username')}
+              />
+            </FormField>
 
-    return (
-        <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20">
-            <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-                <CardHeader className="space-y-2 pb-6">
-                    <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        Create an account
-                    </CardTitle>
-                    <CardDescription className="text-center text-base">
-                        Enter your information to create your account
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                        <div className="space-y-2">
-                            <Label htmlFor="username" className="text-sm font-semibold">Username</Label>
-                            <Input
-                                id="username"
-                                placeholder="johndoe"
-                                {...register('username')}
-                                disabled={isRegistering}
-                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
-                            />
-                            {errors.username && (
-                                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                    {errors.username.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="name@example.com"
-                                {...register('email')}
-                                disabled={isRegistering}
-                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
-                            />
-                            {errors.email && (
-                                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                    {errors.email.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                {...register('password')}
-                                disabled={isRegistering}
-                                className="h-11 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
-                            />
-                            {errors.password && (
-                                <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                    {errors.password.message}
-                                </p>
-                            )}
-                        </div>
-                        <Button
-                            type="submit"
-                            className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                            disabled={isRegistering}
-                        >
-                            {isRegistering && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create Account
-                        </Button>
-                    </form>
-                </CardContent>
-                <CardFooter className="flex flex-col space-y-2 text-center text-sm text-muted-foreground pt-6">
-                    <div>
-                        Already have an account?{' '}
-                        <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                            Sign in
-                        </Link>
-                    </div>
-                </CardFooter>
-            </Card>
-        </div>
-    )
+            <FormField id="email" label="Email" error={errors.email?.message}>
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                disabled={isRegistering}
+                aria-invalid={Boolean(errors.email)}
+                {...register('email')}
+              />
+            </FormField>
+
+            <FormField
+              id="password"
+              label="Password"
+              hint="At least 8 chars with uppercase, lowercase, number, and symbol."
+              error={errors.password?.message}
+            >
+              <Input
+                id="password"
+                type="password"
+                disabled={isRegistering}
+                aria-invalid={Boolean(errors.password)}
+                {...register('password')}
+              />
+            </FormField>
+
+            <Button type="submit" className="w-full" disabled={isRegistering}>
+              {isRegistering ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Create account
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="justify-center text-sm text-muted-foreground">
+          Already have an account?{' '}
+          <Link to="/login" className="ml-1 font-medium text-primary hover:underline">
+            Sign in
+          </Link>
+        </CardFooter>
+      </Card>
+    </div>
+  )
 }
